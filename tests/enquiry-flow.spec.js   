@@ -1,0 +1,53 @@
+const { test, expect } = require('@playwright/test');
+const path = require('path');
+
+test('Automated Design Consultation Form Submission', async ({ page }) => {
+  // 1. Go to your local form page
+  await page.goto('http://localhost:3000/'); // Update if your form is on /contact or /enquiry
+
+  // 2. Fill out standard text inputs from Screenshot 1
+  await page.fill('placeholder="Your name"', 'Sukhraj Singh');
+  await page.fill('placeholder="you@example.com"', 'sukhraj@example.com');
+  await page.fill('placeholder="+91 98765 43210"', '+91 99999 88888');
+  await page.fill('placeholder="DD.MM.YYYY (Only years 2026-2030 available)"', '12.12.2026');
+
+  // 3. Select Options from Custom Select Dropdowns
+  // Using selectOption if they are standard HTML select tags, or clicking them if they are custom divs
+  await page.locator('text=Select guest count').click();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+
+  await page.locator('text=750 ml — The Prestige').click();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+
+  // Fill in design text specifics
+  await page.fill('placeholder="e.g. R & S · 14 February 2026"', 'A & B · 25 December 2026');
+  await page.fill('placeholder="e.g. Nastaliq, Devanagari, Latin italic"', 'Latin italic');
+  await page.fill('placeholder="e.g. blush pink, gold, ivory"', 'gold, ivory, emerald green');
+
+  // 4. Fill text fields from Screenshot 2
+  await page.fill('placeholder="A short message, verse, initials, or note to be included"', 'Please include initials on the front wrapper.');
+  await page.fill('placeholder="Colour palette, inspiration, anything that makes your wedding yours..."', 'Classic elegant theme with gold accents.');
+
+  // 5. Handle Mood Board File Upload (Simulates picking a image/pdf file)
+  // Create a quick mock text file locally to upload for testing purposes
+  const fileToUpload = path.join(__dirname, 'mock-moodboard.png');
+  
+  // Directs playwright to click the file chooser button and attach the asset
+  const fileChooserPromise = page.waitForEvent('filechooser');
+  await page.click('text=Choose Files');
+  const fileChooser = await fileChooserPromise;
+  await fileChooser.setFiles({
+    name: 'mock-moodboard.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from('fake-image-content')
+  });
+
+  // 6. Submit the form
+  await page.click('text=REQUEST A DESIGN CONSULTATION →');
+
+  // 7. Verify Success state or routing
+  // Adjust 'Thank you' to whatever your actual success message banner or endpoint shows
+  await expect(page).not.toHaveURL('http://localhost:3000/'); 
+});
