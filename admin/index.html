@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aqua Vèntèra — Admin</title>
+<link rel="icon" type="image/png" href="favicon.png">
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{--gold:#C9A84C;--ink:#07070A;--surface:#111114;--card:#18181C;--border:rgba(201,168,76,.12);--cream:#FAF7F2;--muted:#6A6460;--green:#2ECC71;--red:#E74C3C;--blue:#3498DB;--f:system-ui,sans-serif;}
@@ -544,7 +546,7 @@ function exportCSV() {
     .then(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href=url;
-      a.download=`aquaverite-enquiries-${new Date().toISOString().slice(0,10)}.csv`;
+      a.download=`aquaventera-enquiries-${new Date().toISOString().slice(0,10)}.csv`;
       a.click(); URL.revokeObjectURL(url);
     });
 }

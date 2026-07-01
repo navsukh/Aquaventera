@@ -329,7 +329,7 @@ async function openModal(id) {
     const filename = file.original_name || file.filename;
     const safeFilename = escapeHtml(filename);
     const safeMime = escapeHtml(file.mime_type || 'Attachment');
-    const href = `/uploads/${encodeURIComponent(file.filename)}`;
+    const href = file.url || `/uploads/${encodeURIComponent(file.filename)}`;
     const safeHref = escapeHtml(href);
     return `<div class="gallery-item">
       <div class="gallery-thumb" role="button" tabindex="0" data-open-file="${safeHref}" data-file-name="${safeFilename}">${isImage ? '<span class="gallery-thumb-label">Preview</span>' : 'PDF / File'}</div>

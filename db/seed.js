@@ -1,9 +1,10 @@
 // db/seed.js — Create default admin account
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
-const { getDb } = require('./database');
+const { getDb, initDb } = require('./database');
 
 async function seed() {
+  await initDb();
   const db = getDb();
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
@@ -14,13 +15,13 @@ async function seed() {
   }
 
   const hash = await bcrypt.hash(password, 12);
-  const existing = db.prepare('SELECT id FROM admins WHERE email = ?').get(email);
+  const existing = (await db.query('SELECT id FROM admins WHERE email = $1', [email])).rows[0];
   if (existing) {
     console.log('Admin already exists:', email);
     process.exit(0);
   }
 
-  db.prepare('INSERT INTO admins (email, password, name) VALUES (?, ?, ?)').run(email, hash, 'Aqua Verite Admin');
+  await db.query('INSERT INTO admins (email, password, name) VALUES ($1, $2, $3)', [email, hash, 'Aqua Vèntèra Admin']);
   console.log('Admin created:', email);
   process.exit(0);
 }

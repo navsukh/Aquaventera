@@ -357,7 +357,7 @@ async function openModal(id) {
         const filename = file.original_name || file.filename;
         const safeFilename = escapeHtml(filename);
         const safeMime = escapeHtml(file.mime_type || 'Attachment');
-        const href = `/uploads/${encodeURIComponent(file.filename)}`;
+        const href = file.url || `/uploads/${encodeURIComponent(file.filename)}`;
         return `
           <div class="gallery-item">
             <button class="gallery-thumb-button" type="button" data-file-href="${escapeHtml(href)}" data-file-name="${safeFilename}">

@@ -73,7 +73,7 @@ function buildWelcomeEmail(data) {
     </div>
     <p>While you wait, feel free to explore our collection and gather any additional inspiration — images, fabric swatches, colour references — that you'd like us to consider when designing your bottles.</p>
     <p style="color:rgba(250,247,242,0.4);font-size:11px;">Your reference number: <span class="gold">#AV-${data.uuid.slice(0,8).toUpperCase()}</span></p>
-  `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaverite.com');
+  `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaventera.com');
 
   return {
     subject: `Aqua Vèntèra — We've received your enquiry · #AV-${data.uuid.slice(0,8).toUpperCase()}`,
@@ -101,7 +101,7 @@ function buildAdminNotificationEmail(data) {
     ${data.vision_notes ? `<p><strong style="color:#C9A84C;">Vision Notes:</strong><br/>${data.vision_notes}</p>` : ''}
     <a href="${process.env.BASE_URL}/admin/enquiry/${data.uuid}" class="cta-btn">View in Admin Panel →</a>
     <p style="font-size:10px;color:rgba(250,247,242,0.3);margin-top:16px;">Ref: #AV-${data.uuid.slice(0,8).toUpperCase()}</p>
-  `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaverite.com');
+  `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaventera.com');
 
   return {
     subject: `🔔 New Enquiry — ${data.full_name} · ${data.guest_count || '?'} guests · ${data.bottle_size || '?'}`,
@@ -119,7 +119,7 @@ function buildDesignProofEmail(data, proofUrl) {
     ${proofUrl ? `<a href="${proofUrl}" class="cta-btn">View Your Design Proof →</a>` : ''}
     <p style="margin-top:24px;">Once you have reviewed the proof, simply reply to this email with your feedback. We will revise until it is exactly right — because this is permanent in glass.</p>
     <p style="color:rgba(250,247,242,0.4);font-size:11px;">Reference: <span class="gold">#AV-${data.uuid.slice(0,8).toUpperCase()}</span></p>
-  `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaverite.com');
+  `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaventera.com');
 
   return {
     subject: `Aqua Vèntèra — Your design proof is ready · #AV-${data.uuid.slice(0,8).toUpperCase()}`,

@@ -55,8 +55,8 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 
 # Clone project
-git clone your-repo /var/www/aquaverite
-cd /var/www/aquaverite
+git clone your-repo /var/www/aquaventera
+cd /var/www/aquaventera
 
 # Install + configure
 npm install --production
@@ -66,12 +66,12 @@ npm run seed
 
 # Run with PM2 (process manager)
 sudo npm install -g pm2
-pm2 start server.js --name aquaverite
+pm2 start server.js --name aquaventera
 pm2 save
 pm2 startup
 
 # Nginx reverse proxy config
-sudo nano /etc/nginx/sites-available/aquaverite
+sudo nano /etc/nginx/sites-available/aquaventera
 ```
 
 ### Nginx config
@@ -98,14 +98,14 @@ server {
 
 ```bash
 # Enable site + SSL (Let's Encrypt)
-sudo ln -s /etc/nginx/sites-available/aquaverite /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/aquaventera /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 sudo certbot --nginx -d yourdomain.com
 ```
 
 ## File Structure
 ```
-aquaverite/
+aquaventera/
 ├── server.js           # Express app entry point
 ├── .env.example        # Environment template
 ├── package.json
@@ -125,7 +125,7 @@ aquaverite/
 ├── public/
 │   └── index.html      # Main website (copy from output)
 └── data/               # Auto-created, gitignored
-    ├── aquaverite.db   # SQLite database
+    ├── aquaventera.db   # SQLite database
     └── uploads/        # Moodboard files
 ```
 >>>>>>> db2e6e5 (Initial commit)

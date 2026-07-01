@@ -24,7 +24,7 @@ const rateLimit    = require('express-rate-limit');
 
 const enquiryRouter = require('./routes/enquiry');
 const adminRouter   = require('./routes/admin');
-const { getDb }     = require('./db/database');
+const { getDb, initDb } = require('./db/database');
 const { ensureCsrfToken } = require('./middleware/csrf');
 const bcrypt = require('bcryptjs');
 
@@ -41,15 +41,15 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       baseUri: ["'self'"],
       objectSrc: ["'none'"],
-      scriptSrc:  ["'self'", "'unsafe-inline'"],
-      scriptSrcElem: ["'self'", "'unsafe-inline'"],
-      scriptSrcAttr: ["'self'", "'unsafe-inline'"],
-      styleSrc:   ["'self'", "'unsafe-inline'",
+      scriptSrc:  ["'self'", "'sha256-2428bc30d43d09289377ea0a9c4c0a7843c15aa69463bae3ddca99c65fdcf21'"],
+      scriptSrcElem: ["'self'"],
+      scriptSrcAttr: ["'self'"],
+      styleSrc:   ["'self'", "'sha256-dfc51696c81938eed929646b695775f38605b0883af508b724aee81838de1323'",
                    "https://fonts.googleapis.com",
                    "https://fonts.gstatic.com"],
       fontSrc:    ["'self'", "https://fonts.gstatic.com"],
-      imgSrc:     ["'self'", "data:", "blob:"],
-      connectSrc: ["'self'"],
+      imgSrc:     ["'self'", "data:", "blob:", "https://*.supabase.co", "https://*.supabase.in"],
+      connectSrc: ["'self'", "https://*.supabase.co", "https://*.supabase.in"],
       upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null
     }
   },
@@ -122,35 +122,52 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 // Uploads — protected
-app.get('/uploads/:filename', require('./middleware/auth').requireAdmin, (req, res) => {
-  const safeBase = path.resolve(__dirname, 'data/uploads');
-  const safeFile = path.resolve(safeBase, req.params.filename);
-  if (!safeFile.startsWith(safeBase)) return res.status(400).end();
-  res.sendFile(safeFile);
+app.get('/uploads/:filename', require('./middleware/auth').requireAdmin, async (req, res) => {
+  try {
+    const db = getDb();
+    const row = (await db.query('SELECT storage_url, original_name, mime_type FROM uploads WHERE filename = $1', [req.params.filename])).rows[0];
+    const storageUrl = row?.storage_url || (/^https?:\/\//i.test(req.params.filename) ? req.params.filename : null);
+
+    if (!storageUrl) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    res.set('Content-Disposition', `inline; filename="${encodeURIComponent(row?.original_name || req.params.filename)}"`);
+    return res.redirect(storageUrl);
+  } catch (err) {
+    console.error('[Upload proxy error]', err);
+    return res.status(500).json({ error: 'Unable to fetch file' });
+  }
 });
-app.use('/uploads',
-  require('./middleware/auth').requireAdmin,
-  express.static(path.join(__dirname, 'data/uploads'))
-);
 
 // ── API Routes ────────────────────────────────────────────
 app.use('/api/enquiry', enquiryRouter);
 app.use('/api/admin',   adminRouter);
 
 // ── Health check ──────────────────────────────────────────
-app.get('/api/health', (req, res) => {
-  const db = getDb();
-  const n  = db.prepare('SELECT COUNT(*) as n FROM enquiries').get().n;
-  const response = {
-    status: 'ok',
-    version: '1.0.0',
-    enquiries: n,
-    time: new Date().toISOString()
-  };
-  if (process.env.NODE_ENV !== 'production') {
-    response.env = process.env.NODE_ENV || 'development';
+app.get('/api/health', async (req, res) => {
+  try {
+    const db = getDb();
+    const result = await db.query('SELECT COUNT(*) as n FROM enquiries');
+    const n = Number(result.rows[0].n);
+    const response = {
+      status: 'ok',
+      version: '1.0.0',
+      enquiries: n,
+      time: new Date().toISOString()
+    };
+    if (process.env.NODE_ENV !== 'production') {
+      response.env = process.env.NODE_ENV || 'development';
+    }
+    res.json(response);
+  } catch (err) {
+    res.status(503).json({
+      status: 'degraded',
+      version: '1.0.0',
+      error: 'Database unavailable',
+      time: new Date().toISOString()
+    });
   }
-  res.json(response);
 });
 
 // ── Admin SPA ─────────────────────────────────────────────
@@ -187,44 +204,75 @@ async function ensureAdminAccount() {
   const db = getDb();
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
-  const existing = email ? db.prepare('SELECT id FROM admins WHERE email = ?').get(email) : null;
 
-  if (!existing) {
-    if (!email || !password) {
-      console.warn('ADMIN_EMAIL and ADMIN_PASSWORD not set; skipping default admin creation.');
+  try {
+    const existing = email ? (await db.query('SELECT id FROM admins WHERE email = $1', [email])).rows[0] : null;
+
+    if (!existing) {
+      if (!email || !password) {
+        console.warn('ADMIN_EMAIL and ADMIN_PASSWORD not set; skipping default admin creation.');
+        return;
+      }
+      const hash = await bcrypt.hash(password, 12);
+      await db.query('INSERT INTO admins (email, password, name) VALUES ($1, $2, $3)', [email, hash, 'Aqua Vèntèra Admin']);
+      console.log('  ✓ Default admin account created');
       return;
     }
-    const hash = await bcrypt.hash(password, 12);
-    db.prepare('INSERT INTO admins (email, password, name) VALUES (?, ?, ?)')
-      .run(email, hash, 'Aqua Vèntèra Admin');
-    console.log('  ✓ Default admin account created');
-    return;
-  }
 
-  if (password) {
-    const hash = await bcrypt.hash(password, 12);
-    db.prepare('UPDATE admins SET password = ?, name = ? WHERE id = ?')
-      .run(hash, 'Aqua Vèntèra Admin', existing.id);
-    console.log('  ✓ Admin password ensured');
-  } else {
-    console.log('  ✓ Admin exists; no ADMIN_PASSWORD provided so password not updated');
+    if (password) {
+      const hash = await bcrypt.hash(password, 12);
+      await db.query('UPDATE admins SET password = $1, name = $2 WHERE id = $3', [hash, 'Aqua Vèntèra Admin', existing.id]);
+      console.log('  ✓ Admin password ensured');
+    } else {
+      console.log('  ✓ Admin exists; no ADMIN_PASSWORD provided so password not updated');
+    }
+  } catch (err) {
+    console.warn('[DB] Admin bootstrap skipped because the database is unavailable.', err.message);
   }
 }
 
 // ── Start ─────────────────────────────────────────────────
-app.listen(PORT, async () => {
-  console.log('\n  ╔═══════════════════════════════════╗');
-  console.log('  ║      Aqua Vèntèra Server           ║');
-  console.log('  ╠═══════════════════════════════════╣');
-  console.log('  ║  Port  : ' + PORT);
-  console.log('  ║  Env   : ' + (process.env.NODE_ENV || 'development'));
-  console.log('  ║  Site  : http://localhost:' + PORT);
-  console.log('  ║  Admin : http://localhost:' + PORT + '/admin');
-  console.log('  ║  Health: http://localhost:' + PORT + '/api/health');
-  console.log('  ╚═══════════════════════════════════╝\n');
-  getDb();
-  await ensureAdminAccount();
-  console.log('  ✓ Database initialised\n');
-});
+async function startServer() {
+  return new Promise((resolve, reject) => {
+    const onError = (err) => {
+      if (err && err.code === 'EADDRINUSE') {
+        console.warn(`[Startup] Port ${PORT} is already in use; reusing existing server instance.`);
+        resolve(null);
+        return;
+      }
+      reject(err);
+    };
+
+    const server = app.listen(PORT, async () => {
+      console.log('\n  ╔═══════════════════════════════════╗');
+      console.log('  ║      Aqua Vèntèra Server           ║');
+      console.log('  ╠═══════════════════════════════════╣');
+      console.log('  ║  Port  : ' + PORT);
+      console.log('  ║  Env   : ' + (process.env.NODE_ENV || 'development'));
+      console.log('  ║  Site  : http://localhost:' + PORT);
+      console.log('  ║  Admin : http://localhost:' + PORT + '/admin');
+      console.log('  ║  Health: http://localhost:' + PORT + '/api/health');
+      console.log('  ╚═══════════════════════════════════╝\n');
+      try {
+        await initDb();
+        await ensureAdminAccount();
+        console.log('  ✓ Database initialised\n');
+      } catch (err) {
+        console.warn('[DB] Startup initialization failed:', err.message);
+      }
+      resolve(server);
+    });
+
+    server.on('error', onError);
+  });
+}
+
+if (require.main === module || process.env.NODE_ENV === 'test') {
+  startServer().catch((err) => {
+    console.error('[Startup] Failed to start server:', err);
+    process.exit(1);
+  });
+}
 
 module.exports = app;
+module.exports.startServer = startServer;

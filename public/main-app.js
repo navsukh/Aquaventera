@@ -155,7 +155,7 @@ function validateEnquiryForm() {
 function createMailtoFallback(validation) {
   var subject = 'Aqua Vèntèra Enquiry — ' + validation.name;
   var body = 'Name: ' + validation.name + '\nEmail: ' + validation.email + '\nPhone: ' + validation.phone + '\nWedding Date: ' + validation.wedding_date + '\nGuests: ' + validation.guest_count + '\nBottle Size: ' + validation.bottle_size + '\nEngraving: ' + validation.engraving_text + '\nVision: ' + validation.vision;
-  window.location.href = 'mailto:hello@aquaverite.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  window.location.href = 'mailto:hello@aquaventera.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 }
 
 function updateMono(v) {

@@ -13,11 +13,19 @@ function createTransporter() {
   });
 }
 
+function getFromAddress() {
+  return process.env.EMAIL_FROM || process.env.SMTP_FROM || '"Aqua Vèntèra" <hello@aquaventera.com>';
+}
+
+function getAdminAddress() {
+  return process.env.EMAIL_TO || process.env.SMTP_USER || process.env.EMAIL_FROM || process.env.SMTP_FROM || 'hello@aquaventera.com';
+}
+
 // ── Client confirmation email ──────────────────────────────
 async function sendEnquiryConfirmation({ name, email, ref, bottle_size, wedding_date }) {
   const transporter = createTransporter();
   await transporter.sendMail({
-    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+    from:    process.env.EMAIL_FROM || '"Aqua Vèntèra" <hello@aquaventera.com>',
     to:      email,
     subject: `Your Enquiry Has Been Received — ${ref}`,
     html: `
@@ -71,10 +79,10 @@ function escapeHtml(value) {
 
 async function sendAdminAlert({ name, email, ref, bottle_size, engraving_text, guest_count, vision, wedding_date }) {
   const transporter = createTransporter();
-  const adminEmail = process.env.EMAIL_TO || process.env.SMTP_USER;
+  const adminEmail = getAdminAddress();
 
   await transporter.sendMail({
-    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+    from:    getFromAddress(),
     to:      adminEmail,
     subject: `New Enquiry ${ref} — ${name} — ${bottle_size || 'Size TBD'}`,
     html: `
@@ -99,7 +107,7 @@ async function sendDesignProofEmail({ name, email, ref, uuid, proofUrl }) {
   const transporter = createTransporter();
   const safeUrl = escapeHtml(proofUrl);
   await transporter.sendMail({
-    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+    from:    getFromAddress(),
     to:      email,
     subject: `Your design proof is ready — ${ref}`,
     html: `

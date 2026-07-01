@@ -6,11 +6,12 @@ const express   = require('express');
 const router    = express.Router();
 const crypto    = require('crypto');
 const { body, validationResult } = require('express-validator');
-const { getDb } = require('../db/database');
+const { getDb, transaction } = require('../db/database');
 const { sendEnquiryConfirmation, sendAdminAlert } = require('../services/email');
 const rateLimit = require('express-rate-limit');
 const { upload } = require('../middleware/upload');
 const { validateCsrf } = require('../middleware/csrf');
+const { uploadToSupabase } = require('../services/supabase');
 
 // Rate limit: 5 submissions per 15 min per IP
 const submitLimiter = rateLimit({
@@ -110,14 +111,15 @@ router.post('/', submitLimiter, validateCsrf, upload.array('attachments', 6), su
   let enquiryId;
 
   try {
-    const tx = db.transaction(() => {
-      const result = db.prepare(`
+    await transaction(async (tx) => {
+      const result = await tx.query(`
         INSERT INTO enquiries
           (ref, name, email, phone, wedding_date, guest_count,
            bottle_size, engraving_text, cap_finish, vision,
            script_choice, palette, packaging, custom_message)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-      `).run(
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        RETURNING id
+      `, [
         ref, name, email,
         phone        || null,
         wedding_date || null,
@@ -130,25 +132,30 @@ router.post('/', submitLimiter, validateCsrf, upload.array('attachments', 6), su
         palette || null,
         packaging || null,
         custom_message || null
-      );
-      enquiryId = result.lastInsertRowid;
+      ]);
+      enquiryId = result.rows[0].id;
 
       if (attachments.length) {
-        const insertFile = db.prepare(`
-          INSERT INTO uploads (enquiry_id, filename, original_name, mime_type, size_bytes)
-          VALUES (?,?,?,?,?)
-        `);
-        attachments.forEach(file => {
-          insertFile.run(enquiryId, file.filename, file.originalname, file.mimetype, file.size);
-        });
+        const insertFile = 'INSERT INTO uploads (enquiry_id, filename, original_name, mime_type, size_bytes, storage_url) VALUES ($1, $2, $3, $4, $5, $6)';
+        for (const file of attachments) {
+          const uploaded = await uploadToSupabase(file);
+          await tx.query(insertFile, [
+            enquiryId,
+            uploaded.storagePath,
+            file.originalname,
+            file.mimetype,
+            file.size,
+            uploaded.storageUrl
+          ]);
+        }
       }
 
-      db.prepare(
+      await tx.query(
         `INSERT INTO activity_log (enquiry_id, action, detail, ip)
-         VALUES (?,?,?,?)`
-      ).run(enquiryId, 'enquiry_submitted', `New enquiry from ${name}`, req.ip);
+         VALUES ($1, $2, $3, $4)`,
+        [enquiryId, 'enquiry_submitted', `New enquiry from ${name}`, req.ip]
+      );
     });
-    tx();
   } catch (dbErr) {
     console.error('[DB error]', dbErr.message);
     return res.status(500).json({ error: 'Could not save enquiry. Please try again.' });
@@ -161,14 +168,16 @@ router.post('/', submitLimiter, validateCsrf, upload.array('attachments', 6), su
       sendEnquiryConfirmation({ name, email, ref, bottle_size: normalizedBottleSize, wedding_date, vision: customisationSummary }),
       sendAdminAlert({ name, email, ref, bottle_size: normalizedBottleSize, engraving_text, guest_count, vision: customisationSummary, wedding_date })
     ]);
-    db.prepare(
-      `INSERT INTO email_log (enquiry_id, to_email, subject, status) VALUES (?,?,?,?)`
-    ).run(enquiryId, email, 'Enquiry confirmation', 'sent');
+    await db.query(
+      `INSERT INTO email_log (enquiry_id, to_email, subject, status) VALUES ($1, $2, $3, $4)`,
+      [enquiryId, email, 'Enquiry confirmation', 'sent']
+    );
   } catch (emailErr) {
     console.warn('[Email warning]', emailErr.message);
-    db.prepare(
-      `INSERT INTO email_log (enquiry_id, to_email, subject, status, error) VALUES (?,?,?,?,?)`
-    ).run(enquiryId, email, 'Enquiry confirmation', 'failed', emailErr.message);
+    await db.query(
+      `INSERT INTO email_log (enquiry_id, to_email, subject, status, error) VALUES ($1, $2, $3, $4, $5)`,
+      [enquiryId, email, 'Enquiry confirmation', 'failed', emailErr.message]
+    );
     // Continue — enquiry is saved even if email fails
   }
 
@@ -188,11 +197,12 @@ const trackLimiter = rateLimit({
 });
 
 // ── GET /api/enquiry/track/:ref ───────────────────────────
-router.get('/track/:ref', trackLimiter, (req, res) => {
+router.get('/track/:ref', trackLimiter, async (req, res) => {
   const db  = getDb();
-  const row = db.prepare(
-    'SELECT ref, name, status, created_at, bottle_size FROM enquiries WHERE ref = ?'
-  ).get(req.params.ref);
+  const row = (await db.query(
+    'SELECT ref, name, status, created_at, bottle_size FROM enquiries WHERE ref = $1',
+    [req.params.ref]
+  )).rows[0];
   if (!row) return res.status(404).json({ error: 'Enquiry not found' });
   return res.json(row);
 });
