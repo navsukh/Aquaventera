@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# aquaverite
-Laser-engraved glass bottles bearing your initials — a token of refinement for every guest. The journey home, elevated.
-=======
 # Aqua Vérité — Backend System
 
 ## Stack
@@ -9,7 +5,7 @@ Laser-engraved glass bottles bearing your initials — a token of refinement for
 - **Framework**: Express.js
 - **Database**: SQLite (via better-sqlite3) — zero-config, production-ready for this scale
 - **Email**: Nodemailer (SMTP — works with Gmail, SendGrid, Mailgun, etc.)
-- **Auth**: JWT + express-session
+- **Auth**: JWT via secure httpOnly cookie with CSRF protection
 - **File uploads**: Multer
 
 ## Quick Start

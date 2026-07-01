@@ -1,16 +1,10 @@
 // middleware/auth.js
 const jwt = require('jsonwebtoken');
-const SECRET = () => process.env.JWT_SECRET || 'dev_secret_change_me';
+const SECRET = () => process.env.JWT_SECRET;
 
 function requireAdmin(req, res, next) {
-  // Check Authorization header first, then session
-  let token = null;
-  const auth = req.headers.authorization || '';
-  if (auth.startsWith('Bearer ')) {
-    token = auth.slice(7).trim();
-  } else if (req.session && req.session.adminToken) {
-    token = req.session.adminToken;
-  }
+  // JWT is stored as an httpOnly cookie named auth_token
+  const token = req.cookies?.auth_token;
 
   if (!token) {
     return res.status(401).json({ error: 'Unauthorised — please log in' });

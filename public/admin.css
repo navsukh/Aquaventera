@@ -1,19 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Aqua Vérité · Admin</title>
-<link rel="stylesheet" href="/admin.css">
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--gold:#C9A84C;--ink:#07070A;--surface:#111115;--card:#18181C;--border:rgba(201,168,76,.12);--text:#FAF7F2;--muted:rgba(250,247,242,.45);--f-serif:'Georgia',serif;}
+html,body{min-height:100%;}
+body{background:var(--ink);color:var(--text);font-family:'Helvetica Neue',sans-serif;font-size:13px;min-height:100vh;display:flex;}
+#dashboard{display:none;width:100%;}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;}
 .sidebar-logo{padding:28px 24px;font-family:var(--f-serif);font-size:18px;font-weight:300;color:var(--text);border-bottom:1px solid var(--border);}
 .sidebar-logo em{color:var(--gold);font-style:normal;}
+.sidebar-logo .sidebar-subtitle{font-size:10px;font-family:sans-serif;color:rgba(250,247,242,.3);letter-spacing:.1em;display:block;margin-top:4px;}
 .sidebar-nav{flex:1;padding:16px 0;}
 .nav-item{display:flex;align-items:center;gap:10px;padding:11px 24px;color:var(--muted);cursor:pointer;transition:all .25s;font-size:11px;letter-spacing:.06em;border-left:2px solid transparent;}
 .nav-item:hover{color:var(--text);background:rgba(201,168,76,.04);}
 .nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,168,76,.06);}
 .nav-ico{width:16px;text-align:center;}
 .sidebar-foot{padding:20px 24px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);}
-/* MAIN */
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
 .topbar-title{font-size:14px;font-weight:400;letter-spacing:.04em;}
@@ -22,9 +21,7 @@
 .logout-btn{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--border);padding:7px 14px;cursor:pointer;transition:all .25s;}
 .logout-btn:hover{color:var(--text);border-color:rgba(201,168,76,.3);}
 .content{flex:1;padding:32px;}
-/* PAGES */
 .page{display:none;}.page.active{display:block;}
-/* STATS GRID */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
 .stat-card{background:var(--card);border:1px solid var(--border);padding:22px 24px;position:relative;overflow:hidden;}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .4s;transform-origin:left;}
@@ -32,20 +29,22 @@
 .stat-val{font-family:var(--f-serif);font-size:42px;font-weight:300;color:var(--gold);line-height:1;}
 .stat-lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:8px;}
 .stat-sub{font-size:10px;color:rgba(201,168,76,.45);margin-top:4px;}
-/* TABLE */
 .table-wrap{background:var(--card);border:1px solid var(--border);overflow:hidden;}
+.table-wrap.padding-24{padding:24px;}
+.table-wrap.padding-28{padding:28px;margin-bottom:20px;}
 .table-head{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
 .table-head-t{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);}
+.search-group{display:flex;gap:8px;align-items:center;}
 .search-box{background:transparent;border:1px solid var(--border);color:var(--text);padding:7px 14px;font-size:12px;outline:none;width:220px;transition:border-color .3s;}
 .search-box:focus{border-color:rgba(201,168,76,.45);}
 .filter-sel{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:7px 12px;font-size:11px;outline:none;cursor:pointer;margin-left:8px;}
+.filter-sel:focus{border-color:rgba(201,168,76,.45);}
 table{width:100%;border-collapse:collapse;}
 th{padding:10px 16px;text-align:left;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);font-weight:400;}
 td{padding:12px 16px;border-bottom:1px solid rgba(201,168,76,.05);font-size:12px;color:rgba(250,247,242,.75);vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(201,168,76,.025);}
 .ref-badge{font-size:10px;font-family:monospace;color:var(--gold);background:rgba(201,168,76,.08);padding:3px 8px;border:1px solid rgba(201,168,76,.15);}
-/* STATUS PILLS */
 .pill{display:inline-block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:0;}
 .pill-new{background:rgba(100,180,255,.12);color:#64b4ff;border:1px solid rgba(100,180,255,.2);}
 .pill-review{background:rgba(255,200,60,.12);color:#ffc83c;border:1px solid rgba(255,200,60,.2);}
@@ -53,20 +52,21 @@ tr:hover td{background:rgba(201,168,76,.025);}
 .pill-confirmed{background:rgba(80,200,120,.12);color:#50c878;border:1px solid rgba(80,200,120,.2);}
 .pill-fulfilled{background:rgba(180,255,180,.08);color:rgba(180,255,180,.7);border:1px solid rgba(180,255,180,.15);}
 .pill-cancelled{background:rgba(255,80,80,.08);color:rgba(255,100,100,.7);border:1px solid rgba(255,80,80,.15);}
-/* ACTION BUTTONS */
 .act-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 11px;font-size:10px;cursor:pointer;transition:all .25s;}
 .act-btn:hover{border-color:rgba(201,168,76,.4);color:var(--gold);}
 .act-btn.danger:hover{border-color:rgba(255,80,80,.4);color:rgba(255,100,100,.8);}
-/* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal-bg.open{display:flex;}
 .modal{background:var(--card);border:1px solid var(--border);width:700px;max-width:95vw;max-height:88vh;overflow-y:auto;padding:36px;}
 .modal-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;}
 .modal-title{font-family:var(--f-serif);font-size:22px;font-weight:300;}
+.modal-title-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
 .modal-close{background:none;border:1px solid var(--border);color:var(--muted);width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .25s;flex-shrink:0;}
 .modal-close:hover{border-color:rgba(201,168,76,.4);color:var(--text);}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.modal-grid-two{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .detail-field{padding:14px 16px;background:rgba(201,168,76,.03);border:1px solid rgba(201,168,76,.08);}
+.detail-field-sm{margin-bottom:10px;}
 .detail-lbl{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
 .detail-val{font-size:13px;color:var(--text);}
 .modal-section{margin-bottom:22px;}
@@ -81,14 +81,12 @@ tr:hover td{background:rgba(201,168,76,.025);}
 .btn-gold:hover{background:#e8c85c;}
 .btn-outline{background:transparent;color:var(--gold);border:1px solid rgba(201,168,76,.4);padding:11px 24px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:all .3s;}
 .btn-outline:hover{background:rgba(201,168,76,.08);}
-/* LOG */
+.btn-gold.mt-18{margin-top:18px;}
 .log-item{padding:10px 0;border-bottom:1px solid rgba(201,168,76,.05);display:flex;gap:14px;align-items:flex-start;}
 .log-item:last-child{border:none;}
 .log-dot{width:7px;height:7px;border-radius:50%;background:rgba(201,168,76,.35);flex-shrink:0;margin-top:5px;}
 .log-time{font-size:10px;color:var(--muted);white-space:nowrap;}
 .log-act{font-size:11px;}
-/* LOGIN */
-#login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ink);}
 .login-box{width:380px;padding:48px;background:var(--card);border:1px solid var(--border);}
 .login-logo{font-family:var(--f-serif);font-size:22px;font-weight:300;color:var(--text);text-align:center;margin-bottom:8px;}
 .login-logo em{color:var(--gold);font-style:normal;}
@@ -100,17 +98,14 @@ tr:hover td{background:rgba(201,168,76,.025);}
 .login-btn{width:100%;padding:13px;background:var(--gold);color:var(--ink);border:none;font-size:10px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;font-family:inherit;margin-top:8px;transition:all .3s;}
 .login-btn:hover{background:#e8c85c;}
 .login-err{color:#ff6464;font-size:11px;text-align:center;margin-top:12px;display:none;}
-/* Toast */
 #toast{position:fixed;bottom:32px;right:32px;background:var(--card);border:1px solid var(--border);padding:14px 20px;font-size:12px;z-index:999;opacity:0;transition:opacity .35s;pointer-events:none;}
 #toast.show{opacity:1;}
 #toast.ok{border-left:3px solid var(--gold);}
 #toast.err{border-left:3px solid #ff6464;}
-/* Pagination */
 .pag{display:flex;gap:6px;margin-top:18px;align-items:center;}
 .pag-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;font-size:11px;cursor:pointer;transition:all .25s;}
 .pag-btn:hover,.pag-btn.active{border-color:rgba(201,168,76,.4);color:var(--gold);}
 .pag-info{font-size:11px;color:var(--muted);margin-left:8px;}
-/* Charts area */
 .chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;}
 .chart-card{background:var(--card);border:1px solid var(--border);padding:24px;}
 .chart-t{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
@@ -122,177 +117,15 @@ tr:hover td{background:rgba(201,168,76,.025);}
 .gallery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
 .gallery-item{background:rgba(0,0,0,.18);border:1px solid rgba(201,168,76,.12);padding:10px;display:flex;flex-direction:column;gap:8px;}
 .gallery-thumb{width:100%;height:140px;object-fit:cover;border:1px solid rgba(201,168,76,.12);background:rgba(255,255,255,.03);}
+.gallery-thumb-label{font-size:12px;color:var(--muted);}
 .gallery-meta{font-size:11px;color:var(--muted);line-height:1.5;word-break:break-word;}
+.gallery-meta .filename{color:var(--text);margin-bottom:4px;}
 .gallery-link{color:var(--gold);text-decoration:none;font-size:11px;}
 .gallery-link:hover{text-decoration:underline;}
-</style>
-</head>
-<body>
-
-<!-- LOGIN PAGE -->
-<div id="login-page">
-  <form class="login-box" id="login-form">
-    <p class="login-logo">Aqua <em>Vérité</em></p>
-    <p class="login-sub">Atelier Administration</p>
-    <div class="login-f"><label class="login-lbl">Email</label><input type="email" id="li-email" class="login-in" placeholder="admin@aquaverite.com" autocomplete="email"></div>
-    <div class="login-f"><label class="login-lbl">Password</label><input type="password" id="li-pass" class="login-in" placeholder="••••••••" autocomplete="current-password"></div>
-    <button class="login-btn" type="submit">Sign In</button>
-    <p class="login-err" id="li-err"></p>
-  </form>
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashboard" class="hidden">
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="sidebar-logo">Aqua <em>Vérité</em><br><span style="font-size:10px;font-family:sans-serif;color:rgba(250,247,242,.3);letter-spacing:.1em;">ATELIER ADMIN</span></div>
-    <nav class="sidebar-nav">
-      <div class="nav-item active" data-page="p-overview"><span class="nav-ico">◈</span> Overview</div>
-      <div class="nav-item" data-page="p-enquiries"><span class="nav-ico">✦</span> Enquiries</div>
-      <div class="nav-item" data-page="p-activity"><span class="nav-ico">◉</span> Activity Log</div>
-      <div class="nav-item" data-page="p-settings"><span class="nav-ico">◇</span> Settings</div>
-    </nav>
-    <div class="sidebar-foot" id="admin-foot">Signed in</div>
-  </div>
-
-  <!-- Main -->
-  <div class="main">
-    <div class="topbar">
-      <span class="topbar-title" id="page-title">Overview</span>
-      <div class="topbar-right">
-        <span class="badge" id="new-badge">— new</span>
-        <button class="logout-btn" id="logout-btn">Sign Out</button>
-      </div>
-    </div>
-    <div class="content">
-
-      <!-- OVERVIEW PAGE -->
-      <div class="page active" id="p-overview">
-        <div class="stats-grid" id="stats-grid">
-          <div class="stat-card"><div class="stat-val" id="st-total">—</div><div class="stat-lbl">Total Enquiries</div></div>
-          <div class="stat-card"><div class="stat-val" id="st-new">—</div><div class="stat-lbl">Awaiting Review</div></div>
-          <div class="stat-card"><div class="stat-val" id="st-confirmed">—</div><div class="stat-lbl">Confirmed</div></div>
-          <div class="stat-card"><div class="stat-val" id="st-week">—</div><div class="stat-lbl">This Week</div><div class="stat-sub" id="st-today-sub"></div></div>
-        </div>
-        <div class="chart-row">
-          <div class="chart-card">
-            <p class="chart-t">Enquiries by Bottle Size</p>
-            <div id="size-chart"></div>
-          </div>
-          <div class="chart-card">
-            <p class="chart-t">Status Breakdown</p>
-            <div id="status-chart"></div>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <div class="table-head"><span class="table-head-t">Recent Enquiries</span></div>
-          <table><thead><tr><th>Ref</th><th>Name</th><th>Email</th><th>Wedding Date</th><th>Size</th><th>Status</th><th></th></tr></thead>
-          <tbody id="recent-tbody"></tbody></table>
-        </div>
-      </div>
-
-      <!-- ENQUIRIES PAGE -->
-      <div class="page" id="p-enquiries">
-        <div class="table-wrap">
-          <div class="table-head">
-            <span class="table-head-t">All Enquiries</span>
-            <div class="search-group">
-              <input type="text" class="search-box" id="enq-search" placeholder="Search name, email, ref…" >
-              <select class="filter-sel" id="enq-status-filter" >
-                <option value="all">All statuses</option>
-                <option value="new">New</option>
-                <option value="in_review">In Review</option>
-                <option value="quoted">Quoted</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="fulfilled">Fulfilled</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
-          </div>
-          <table><thead><tr><th>Ref</th><th>Name</th><th>Email</th><th>Wedding Date</th><th>Guests</th><th>Size</th><th>Status</th><th>Created</th><th></th></tr></thead>
-          <tbody id="enq-tbody"></tbody></table>
-          <div style="padding:16px 24px;border-top:1px solid var(--border);"><div class="pag" id="enq-pag"></div></div>
-        </div>
-      </div>
-
-      <!-- ACTIVITY PAGE -->
-      <div class="page" id="p-activity">
-        <div class="table-wrap" class="table-wrap padding-24">
-          <p class="chart-t" style="margin-bottom:20px;">Recent Activity</p>
-          <div id="activity-list"></div>
-        </div>
-      </div>
-
-      <!-- SETTINGS PAGE -->
-      <div class="page" id="p-settings">
-        <div style="max-width:480px;">
-          <div class="table-wrap" class="table-wrap padding-28">
-            <p class="chart-t" style="margin-bottom:20px;">Change Password</p>
-            <div class="login-f"><label class="login-lbl">Current Password</label><input type="password" id="pw-cur" class="modal-in"></div>
-            <div class="login-f" style="margin-top:14px;"><label class="login-lbl">New Password</label><input type="password" id="pw-new" class="modal-in"></div>
-            <button class="btn-gold" class="btn-gold mt-18" id="pw-change-btn">Update Password</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- ENQUIRY DETAIL MODAL -->
-<div class="modal-bg" id="enq-modal">
-  <div class="modal">
-    <div class="modal-h">
-      <div>
-        <p class="modal-title-label">Enquiry Detail</p>
-        <p class="modal-title" id="modal-name">—</p>
-      </div>
-      <button class="modal-close" id="modal-close-btn">✕</button>
-    </div>
-    <div class="detail-grid" id="modal-details"></div>
-    <div class="modal-section">
-      <p class="modal-section-t">Update Status</p>
-      <div class="modal-grid-two">
-        <div><label class="login-lbl" class="login-lbl label-block">Status</label>
-          <select class="modal-sel" id="modal-status">
-            <option value="new">New</option><option value="in_review">In Review</option>
-            <option value="quoted">Quoted</option><option value="confirmed">Confirmed</option>
-            <option value="fulfilled">Fulfilled</option><option value="cancelled">Cancelled</option>
-          </select></div>
-        <div><label class="login-lbl" class="login-lbl label-block">Quoted Price (₹)</label>
-          <input type="number" class="modal-in" id="modal-price" placeholder="e.g. 45000"></div>
-      </div>
-    </div>
-    <div class="modal-section">
-      <p class="modal-section-t">Internal Notes</p>
-      <textarea class="modal-ta" id="modal-notes" placeholder="Add internal notes…"></textarea>
-    </div>
-    <div class="modal-section" id="modal-vision-wrap">
-      <p class="modal-section-t">Client Vision</p>
-      <p id="modal-vision" class="detail-note"></p>
-    </div>
-    <div class="modal-section" id="modal-custom-wrap">
-      <p class="modal-section-t">Customisation Details</p>
-      <div id="modal-custom"></div>
-    </div>
-    <div class="modal-section" id="modal-files-wrap">
-      <p class="modal-section-t">Attachments</p>
-      <div id="modal-files"></div>
-    </div>
-    <div class="modal-section" id="modal-log-wrap">
-      <p class="modal-section-t">Activity Log</p>
-      <div id="modal-log"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-gold" id="modal-save-btn">Save Changes</button>
-      <button class="btn-outline" id="modal-close-btn">Cancel</button>
-      <button class="act-btn danger" class="ml-auto" id="modal-delete-btn">Delete</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
-
-<script src="/admin.js"></script>
-</body>
-</html>
+.td-muted{color:var(--muted);}
+.no-results{ text-align:center;color:var(--muted);padding:32px;}
+.flex-grow{flex:1;}
+.detail-note{font-size:12px;line-height:1.9;color:var(--muted);}
+.detail-note-small{font-size:10px;color:var(--muted);margin-top:2px;}
+.hidden{display:none;}
+` }

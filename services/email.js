@@ -60,6 +60,15 @@ async function sendEnquiryConfirmation({ name, email, ref, bottle_size, wedding_
 }
 
 // ── Internal admin alert email ─────────────────────────────
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 async function sendAdminAlert({ name, email, ref, bottle_size, engraving_text, guest_count, vision, wedding_date }) {
   const transporter = createTransporter();
   const adminEmail = process.env.EMAIL_TO || process.env.SMTP_USER;
@@ -74,7 +83,7 @@ async function sendAdminAlert({ name, email, ref, bottle_size, engraving_text, g
   <table style="width:100%;border-collapse:collapse;font-size:13px;">
     <tr><td style="padding:8px;color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.06);">Ref</td><td style="padding:8px;font-weight:bold;color:#C9A84C">${ref}</td></tr>
     <tr><td style="padding:8px;color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.06);">Name</td><td style="padding:8px;">${name}</td></tr>
-    <tr><td style="padding:8px;color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.06);">Email</td><td style="padding:8px;"><a href="mailto:${email}" style="color:#C9A84C">${email}</a></td></tr>
+    <tr><td style="padding:8px;color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.06);">Email</td><td style="padding:8px;"><a href="mailto:${escapeHtml(email)}" style="color:#C9A84C">${escapeHtml(email)}</a></td></tr>
     <tr><td style="padding:8px;color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.06);">Wedding Date</td><td style="padding:8px;">${wedding_date || '—'}</td></tr>
     <tr><td style="padding:8px;color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.06);">Guest Count</td><td style="padding:8px;">${guest_count || '—'}</td></tr>
     <tr><td style="padding:8px;color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.06);">Bottle Size</td><td style="padding:8px;">${bottle_size || '—'}</td></tr>
@@ -86,4 +95,25 @@ async function sendAdminAlert({ name, email, ref, bottle_size, engraving_text, g
   });
 }
 
-module.exports = { sendEnquiryConfirmation, sendAdminAlert };
+async function sendDesignProofEmail({ name, email, ref, uuid, proofUrl }) {
+  const transporter = createTransporter();
+  const safeUrl = escapeHtml(proofUrl);
+  await transporter.sendMail({
+    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+    to:      email,
+    subject: `Your design proof is ready — ${ref}`,
+    html: `
+<div style="font-family:sans-serif;max-width:600px;padding:24px;background:#111;color:#FAF7F2;">
+  <h2 style="color:#C9A84C;font-weight:300;">Your design proof is ready.</h2>
+  <p>Dear ${escapeHtml(name)},</p>
+  <p>Our design team has prepared the initial proof for your bespoke Aqua Vérité collection. Please review the engraving, cap finish, and packaging using the link below.</p>
+  <p><a href="${safeUrl}" style="display:inline-block;padding:12px 20px;background:#C9A84C;color:#07070A;text-decoration:none;font-weight:600;">View Your Design Proof →</a></p>
+  <p style="margin-top:24px;">Once you have reviewed the proof, simply reply to this email with your feedback. We will revise until it is exactly right — because this is permanent in glass.</p>
+  <p style="color:rgba(250,247,242,0.4);font-size:11px;">Reference: <strong style="color:#C9A84C;">${ref}</strong></p>
+</div>
+    `.trim(),
+    text: `Dear ${name},\n\nYour design proof is ready. Please review it at: ${proofUrl}\n\nAqua Vérité`,
+  });
+}
+
+module.exports = { sendEnquiryConfirmation, sendAdminAlert, sendDesignProofEmail };

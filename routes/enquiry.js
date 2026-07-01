@@ -4,11 +4,13 @@
 
 const express   = require('express');
 const router    = express.Router();
+const crypto    = require('crypto');
 const { body, validationResult } = require('express-validator');
 const { getDb } = require('../db/database');
 const { sendEnquiryConfirmation, sendAdminAlert } = require('../services/email');
 const rateLimit = require('express-rate-limit');
 const { upload } = require('../middleware/upload');
+const { validateCsrf } = require('../middleware/csrf');
 
 // Rate limit: 5 submissions per 15 min per IP
 const submitLimiter = rateLimit({
@@ -83,16 +85,13 @@ const submitRules = [
 ];
 
 function genRef() {
-  const db   = getDb();
   const year = new Date().getFullYear();
-  const row  = db.prepare(
-    "SELECT COUNT(*) as cnt FROM enquiries WHERE created_at >= date('now','start of year')"
-  ).get();
-  return `AV-${year}-${String((row.cnt || 0) + 1).padStart(4, '0')}`;
+  const token = crypto.randomUUID().replace(/-/g, '').slice(0, 16).toUpperCase();
+  return `AV-${year}-${token}`;
 }
 
 // ── POST /api/enquiry — multipart/form-data with attachments ─────────────────────────
-router.post('/', submitLimiter, upload.array('attachments', 6), submitRules, async (req, res) => {
+router.post('/', submitLimiter, validateCsrf, upload.array('attachments', 6), submitRules, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
@@ -180,8 +179,16 @@ router.post('/', submitLimiter, upload.array('attachments', 6), submitRules, asy
   });
 });
 
+const trackLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please wait before checking again.' }
+});
+
 // ── GET /api/enquiry/track/:ref ───────────────────────────
-router.get('/track/:ref', (req, res) => {
+router.get('/track/:ref', trackLimiter, (req, res) => {
   const db  = getDb();
   const row = db.prepare(
     'SELECT ref, name, status, created_at, bottle_size FROM enquiries WHERE ref = ?'

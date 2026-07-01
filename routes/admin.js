@@ -6,9 +6,16 @@ const jwt     = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const { getDb }        = require('../db/database');
 const { requireAdmin } = require('../middleware/auth');
+const { validateCsrf } = require('../middleware/csrf');
+const { sendDesignProofEmail } = require('../services/email');
 
-const SECRET  = () => process.env.JWT_SECRET || 'dev_secret_change_me';
+const SECRET  = () => process.env.JWT_SECRET;
 const EXPIRES = () => process.env.JWT_EXPIRES_IN || '8h';
+
+function secureCookie(req) {
+  return req.secure || req.headers['x-forwarded-proto'] === 'https';
+}
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 8,
@@ -18,14 +25,15 @@ const loginLimiter = rateLimit({
 });
 
 // ── POST /api/admin/login ─────────────────────────────────
-router.post('/login', loginLimiter, async (req, res) => {
-  const { email, password } = req.body || {};
-  if (!email || !password)
-    return res.status(400).json({ error: 'Email and password required' });
+router.post('/login', loginLimiter, validateCsrf, async (req, res) => {
+  const { email, username, password } = req.body || {};
+  const loginId = (email || username || '').toString().trim().toLowerCase();
+  if (!loginId || !password)
+    return res.status(400).json({ error: 'Email/username and password required' });
 
   const db    = getDb();
   const admin = db.prepare('SELECT * FROM admins WHERE email = ?')
-                  .get(email.toLowerCase().trim());
+                  .get(loginId);
 
   if (!admin)
     return res.status(401).json({ error: 'Invalid credentials' });
@@ -42,15 +50,25 @@ router.post('/login', loginLimiter, async (req, res) => {
     SECRET(), { expiresIn: EXPIRES() }
   );
 
-  // Store in session too (for server-side check if needed)
-  if (req.session) req.session.adminToken = token;
+  const cookieOptions = {
+    httpOnly: true,
+    secure: secureCookie(req),
+    sameSite: 'Strict',
+    maxAge: 12 * 60 * 60 * 1000,
+    path: '/'
+  };
+  res.cookie('auth_token', token, cookieOptions);
 
-  return res.json({ token, name: admin.name, email: admin.email });
+  return res.json({
+    username: admin.email,
+    name: admin.name,
+    email: admin.email
+  });
 });
 
 // ── POST /api/admin/logout ────────────────────────────────
-router.post('/logout', (req, res) => {
-  if (req.session) req.session.destroy(() => {});
+router.post('/logout', validateCsrf, (req, res) => {
+  res.clearCookie('auth_token', { path: '/' });
   return res.json({ success: true });
 });
 
@@ -82,7 +100,13 @@ router.get('/dashboard', requireAdmin, (req, res) => {
     GROUP BY bottle_size ORDER BY count DESC
   `).all();
 
-  return res.json({ stats, recent, bySize });
+  return res.json({
+    stats,
+    recent,
+    bySize,
+    adminEmail: req.admin.email,
+    adminName: req.admin.name
+  });
 });
 
 // ── GET /api/admin/enquiries ──────────────────────────────
@@ -118,6 +142,39 @@ router.get('/enquiries', requireAdmin, (req, res) => {
   return res.json({ total, page: Number(page), limit: Number(limit), rows });
 });
 
+// ── GET /api/admin/export ───────────────────────────────
+router.get('/export', requireAdmin, (req, res) => {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT ref, name, email, phone, wedding_date, guest_count,
+           bottle_size, engraving_text, cap_finish, status, quoted_price, created_at
+    FROM enquiries
+    ORDER BY created_at DESC
+  `).all();
+
+  const headers = ['Ref','Name','Email','Phone','Wedding Date','Guests','Bottle Size','Engraving','Cap Finish','Status','Quote','Created At'];
+  const csv = [headers.join(',')].concat(rows.map(row => {
+    return [
+      row.ref,
+      row.name,
+      row.email,
+      row.phone || '',
+      row.wedding_date || '',
+      row.guest_count || '',
+      row.bottle_size || '',
+      row.engraving_text ? row.engraving_text.replace(/"/g, '""') : '',
+      row.cap_finish || '',
+      row.status || '',
+      row.quoted_price != null ? String(row.quoted_price) : '',
+      row.created_at || ''
+    ].map(value => `"${String(value).replace(/"/g, '""')}"`).join(',');
+  })).join('\n');
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="aquaverite-enquiries-${new Date().toISOString().slice(0,10)}.csv"`);
+  res.send(csv);
+});
+
 // ── GET /api/admin/enquiries/:id ─────────────────────────
 router.get('/enquiries/:id', requireAdmin, (req, res) => {
   const db      = getDb();
@@ -136,8 +193,50 @@ router.get('/enquiries/:id', requireAdmin, (req, res) => {
   return res.json({ ...enquiry, files, log, emails });
 });
 
+function isValidProofUrl(value) {
+  if (!value || typeof value !== 'string') return false;
+  try {
+    const uri = new URL(value.trim());
+    return uri.protocol === 'http:' || uri.protocol === 'https:';
+  } catch (err) {
+    return false;
+  }
+}
+
+// ── POST /api/admin/enquiry/:uuid/send-proof ──────────────
+router.post('/enquiry/:uuid/send-proof', requireAdmin, validateCsrf, async (req, res) => {
+  const proofUrl = (req.body && req.body.proof_url || '').toString().trim();
+  if (!isValidProofUrl(proofUrl)) {
+    return res.status(400).json({ error: 'Proof URL must be a valid http:// or https:// URL' });
+  }
+
+  const db = getDb();
+  const enquiry = db.prepare('SELECT * FROM enquiries WHERE uuid = ?').get(req.params.uuid);
+  if (!enquiry) return res.status(404).json({ error: 'Enquiry not found' });
+
+  try {
+    await sendDesignProofEmail({
+      name: enquiry.full_name,
+      email: enquiry.email,
+      ref: `#AV-${enquiry.uuid.slice(0,8).toUpperCase()}`,
+      uuid: enquiry.uuid,
+      proofUrl
+    });
+
+    db.prepare(
+      `INSERT INTO activity_log (enquiry_id, admin_id, action, detail, ip)
+       VALUES (?,?,?,?,?)`
+    ).run(enquiry.id, req.admin.id, 'proof_sent', `Proof sent to client`, req.ip);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('[Proof email error]', err.message);
+    return res.status(500).json({ error: 'Failed to send proof email' });
+  }
+});
+
 // ── PATCH /api/admin/enquiries/:id ───────────────────────
-router.patch('/enquiries/:id', requireAdmin, (req, res) => {
+router.patch('/enquiries/:id', requireAdmin, validateCsrf, (req, res) => {
   const db      = getDb();
   const allowed = {};
   const { status, notes, quoted_price, priority } = req.body || {};
@@ -163,7 +262,7 @@ router.patch('/enquiries/:id', requireAdmin, (req, res) => {
 });
 
 // ── DELETE /api/admin/enquiries/:id ──────────────────────
-router.delete('/enquiries/:id', requireAdmin, (req, res) => {
+router.delete('/enquiries/:id', requireAdmin, validateCsrf, (req, res) => {
   getDb().prepare('DELETE FROM enquiries WHERE id = ?').run(req.params.id);
   return res.json({ success: true });
 });
@@ -180,7 +279,7 @@ router.get('/activity', requireAdmin, (req, res) => {
 });
 
 // ── POST /api/admin/change-password ──────────────────────
-router.post('/change-password', requireAdmin, async (req, res) => {
+router.post('/change-password', requireAdmin, validateCsrf, async (req, res) => {
   const { current, newPassword } = req.body || {};
   if (!current || !newPassword || newPassword.length < 8)
     return res.status(400).json({ error: 'New password must be at least 8 characters' });
