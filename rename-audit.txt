@@ -1,0 +1,67 @@
+./admin/index.html:547:      a.download=`aquaverite-enquiries-${new Date().toISOString().slice(0,10)}.csv`;
+./server/db.js:6:const DB_PATH = process.env.DB_PATH || './data/aquaverite.db';
+./server/mailer.js:76:  `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaverite.com');
+./server/mailer.js:104:  `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaverite.com');
+./server/mailer.js:122:  `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaverite.com');
+./README.md:58:git clone your-repo /var/www/aquaverite
+./README.md:59:cd /var/www/aquaverite
+./README.md:69:pm2 start server.js --name aquaverite
+./README.md:74:sudo nano /etc/nginx/sites-available/aquaverite
+./README.md:101:sudo ln -s /etc/nginx/sites-available/aquaverite /etc/nginx/sites-enabled/
+./README.md:108:aquaverite/
+./README.md:128:    ├── aquaverite.db   # SQLite database
+./public/main-app.js:158:  window.location.href = 'mailto:hello@aquaverite.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+./public/index.html:1337:    window.location.href='mailto:hello@aquaverite.com?subject='+
+./public/main.js:158:  window.location.href = 'mailto:hello@aquaverite.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+./.env:14:ADMIN_EMAIL=admin@aquaverite.com
+./.env:23:EMAIL_FROM="Aqua Verite" <hello@aquaverite.com>
+./.env:24:EMAIL_TO=enquiries@aquaverite.com
+./db/database.js:5:const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../data/aquaverite.db');
+./.env.example:14:ADMIN_EMAIL=admin@aquaverite.com
+./.env.example:23:EMAIL_FROM="Aqua Verite" <hello@aquaverite.com>
+./.env.example:24:EMAIL_TO=enquiries@aquaverite.com
+./views/admin.html:138:    <div class="login-f"><label class="login-lbl">Email</label><input type="email" id="li-email" class="login-in" placeholder="admin@aquaverite.com" autocomplete="email"></div>
+./routes/admin.js:174:  res.setHeader('Content-Disposition', `attachment; filename="aquaverite-enquiries-${new Date().toISOString().slice(0,10)}.csv"`);
+./services/email.js:20:    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+./services/email.js:77:    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+./services/email.js:102:    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+./server.js:199:      .run(email, hash, 'Aqua Vèntèra Admin');
+./server.js:207:      .run(hash, 'Aqua Vèntèra Admin', existing.id);
+./server.js:217:  console.log('  ║      Aqua Vèntèra Server           ║');
+./admin/index.html:5:<title>Aqua Vèntèra — Admin</title>
+./admin/index.html:154:    <p class="login-brand">Aqua <em>Vèntèra</em></p>
+./admin/index.html:168:    <p class="topbar-brand">Aqua <em>Vèntèra</em> <span style="color:var(--muted);font-size:10px;letter-spacing:.15em;"> · Admin</span></p>
+./server/mailer.js:49:    <p class="brand">Aqua <em>Vèntèra</em></p>
+./server/mailer.js:54:    <p class="foot-p">© Aqua Vèntèra · Crafted with intention · No two bottles are the same</p>
+./server/mailer.js:67:    <p>Thank you for reaching out to Aqua Vèntèra. We have received your enquiry and our design team will be in touch within 24 hours to begin the conversation about your bespoke collection.</p>
+./server/mailer.js:79:    subject: `Aqua Vèntèra — We've received your enquiry · #AV-${data.uuid.slice(0,8).toUpperCase()}`,
+./server/mailer.js:81:    text: `Dear ${data.full_name},\n\nThank you for your enquiry. Our team will be in touch within 24 hours.\n\nReference: #AV-${data.uuid.slice(0,8).toUpperCase()}\n\nAqua Vèntèra`,
+./server/mailer.js:118:    <p>Our design team has prepared the initial proof for your bespoke Aqua Vèntèra collection. Please review the engraving, cap finish, and packaging below.</p>
+./server/mailer.js:125:    subject: `Aqua Vèntèra — Your design proof is ready · #AV-${data.uuid.slice(0,8).toUpperCase()}`,
+./server/mailer.js:127:    text: `Dear ${data.full_name},\n\nYour design proof is ready. Please review it at: ${proofUrl}\n\nAqua Vèntèra`,
+./server/mailer.js:139:      from: `"${process.env.BRAND_NAME || 'Aqua Vèntèra'}" <${process.env.SMTP_USER}>`,
+./server/setup.js:11:  console.log('\n🔧  Aqua Vèntèra — First-Time Setup\n');
+./README.md:1:# Aqua Vèntèra — Backend System
+./public/main-app.js:156:  var subject = 'Aqua Vèntèra Enquiry — ' + validation.name;
+./public/index.html:6:<title>Aqua Vèntèra — Bespoke Hydration for the Most Discerning Celebrations</title>
+./public/index.html:279:  <a href="#" class="logo">Aqua <em>Vèntèra</em></a>
+./public/main.js:156:  var subject = 'Aqua Vèntèra Enquiry — ' + validation.name;
+./package.json:4:  "description": "Aqua Vèntèra — Bespoke Glass Water Bottle Wedding Gift Platform",
+./views/admin.html:6:<title>Aqua Vèntèra · Admin</title>
+./views/admin.html:136:    <p class="login-logo">Aqua <em>Vèntèra</em></p>
+./views/admin.html:149:    <div class="sidebar-logo">Aqua <em>Vèntèra</em><br><span style="font-size:10px;font-family:sans-serif;color:rgba(250,247,242,.3);letter-spacing:.1em;">ATELIER ADMIN</span></div>
+./services/email.js:43:    <p class="logo">Aqua Vèntèra</p>
+./services/email.js:54:    <p class="footer">Aqua Vèntèra · Bespoke Hydration · Every bottle tells a story</p>
+./services/email.js:109:  <p>Our design team has prepared the initial proof for your bespoke Aqua Vèntèra collection. Please review the engraving, cap finish, and packaging using the link below.</p>
+./services/email.js:115:    text: `Dear ${name},\n\nYour design proof is ready. Please review it at: ${proofUrl}\n\nAqua Vèntèra`,
+./rename-audit.txt:17:./.env:23:EMAIL_FROM="Aqua Verite" <hello@aquaverite.com>
+./rename-audit.txt:21:./.env.example:23:EMAIL_FROM="Aqua Verite" <hello@aquaverite.com>
+./rename-audit.txt:25:./services/email.js:20:    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+./rename-audit.txt:26:./services/email.js:77:    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+./rename-audit.txt:27:./services/email.js:102:    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+./.env:23:EMAIL_FROM="Aqua Verite" <hello@aquaverite.com>
+./db/seed.js:23:  db.prepare('INSERT INTO admins (email, password, name) VALUES (?, ?, ?)').run(email, hash, 'Aqua Verite Admin');
+./.env.example:23:EMAIL_FROM="Aqua Verite" <hello@aquaverite.com>
+./services/email.js:20:    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+./services/email.js:77:    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',
+./services/email.js:102:    from:    process.env.EMAIL_FROM || '"Aqua Verite" <hello@aquaverite.com>',

@@ -40,7 +40,7 @@ async function sendEnquiryConfirmation({ name, email, ref, bottle_size, wedding_
 </head>
 <body>
   <div class="wrap">
-    <p class="logo">Aqua Vérité</p>
+    <p class="logo">Aqua Vèntèra</p>
     <hr class="rule">
     <h2>Dear ${name},</h2>
     <p>We have received your consultation request and are honoured by your interest. Our atelier team will review your enquiry and be in touch within <strong style="color:#C9A84C">24 hours</strong>.</p>
@@ -51,7 +51,7 @@ async function sendEnquiryConfirmation({ name, email, ref, bottle_size, wedding_
     </div>
     <p>In the meantime, if you have any questions or additional inspiration to share, please reply to this email or reach us on WhatsApp.</p>
     <hr class="rule">
-    <p class="footer">Aqua Vérité · Bespoke Hydration · Every bottle tells a story</p>
+    <p class="footer">Aqua Vèntèra · Bespoke Hydration · Every bottle tells a story</p>
   </div>
 </body>
 </html>
@@ -106,13 +106,13 @@ async function sendDesignProofEmail({ name, email, ref, uuid, proofUrl }) {
 <div style="font-family:sans-serif;max-width:600px;padding:24px;background:#111;color:#FAF7F2;">
   <h2 style="color:#C9A84C;font-weight:300;">Your design proof is ready.</h2>
   <p>Dear ${escapeHtml(name)},</p>
-  <p>Our design team has prepared the initial proof for your bespoke Aqua Vérité collection. Please review the engraving, cap finish, and packaging using the link below.</p>
+  <p>Our design team has prepared the initial proof for your bespoke Aqua Vèntèra collection. Please review the engraving, cap finish, and packaging using the link below.</p>
   <p><a href="${safeUrl}" style="display:inline-block;padding:12px 20px;background:#C9A84C;color:#07070A;text-decoration:none;font-weight:600;">View Your Design Proof →</a></p>
   <p style="margin-top:24px;">Once you have reviewed the proof, simply reply to this email with your feedback. We will revise until it is exactly right — because this is permanent in glass.</p>
   <p style="color:rgba(250,247,242,0.4);font-size:11px;">Reference: <strong style="color:#C9A84C;">${ref}</strong></p>
 </div>
     `.trim(),
-    text: `Dear ${name},\n\nYour design proof is ready. Please review it at: ${proofUrl}\n\nAqua Vérité`,
+    text: `Dear ${name},\n\nYour design proof is ready. Please review it at: ${proofUrl}\n\nAqua Vèntèra`,
   });
 }
 

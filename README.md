@@ -1,4 +1,4 @@
-# Aqua Vérité — Backend System
+# Aqua Vèntèra — Backend System
 
 ## Stack
 - **Runtime**: Node.js 18+

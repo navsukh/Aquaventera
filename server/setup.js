@@ -8,7 +8,7 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 const ask = (q) => new Promise(res => rl.question(q, res));
 
 async function setup() {
-  console.log('\n🔧  Aqua Vérité — First-Time Setup\n');
+  console.log('\n🔧  Aqua Vèntèra — First-Time Setup\n');
 
   const username = await ask('Admin username [admin]: ') || 'admin';
   const password = await ask('Admin password: ');

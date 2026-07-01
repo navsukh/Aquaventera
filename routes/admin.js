@@ -171,7 +171,7 @@ router.get('/export', requireAdmin, (req, res) => {
   })).join('\n');
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-  res.setHeader('Content-Disposition', `attachment; filename="aquaverite-enquiries-${new Date().toISOString().slice(0,10)}.csv"`);
+  res.setHeader('Content-Disposition', `attachment; filename="aquaventera-enquiries-${new Date().toISOString().slice(0,10)}.csv"`);
   res.send(csv);
 });
 

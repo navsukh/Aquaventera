@@ -1,7 +1,7 @@
 {
-  "name": "aqua-verite",
+  "name": "aqua-Vèntèra",
   "version": "1.0.0",
-  "description": "Aqua Vérité — Bespoke Glass Water Bottle Wedding Gift Platform",
+  "description": "Aqua Vèntèra — Bespoke Glass Water Bottle Wedding Gift Platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

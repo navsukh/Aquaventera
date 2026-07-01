@@ -196,7 +196,7 @@ async function ensureAdminAccount() {
     }
     const hash = await bcrypt.hash(password, 12);
     db.prepare('INSERT INTO admins (email, password, name) VALUES (?, ?, ?)')
-      .run(email, hash, 'Aqua Vérité Admin');
+      .run(email, hash, 'Aqua Vèntèra Admin');
     console.log('  ✓ Default admin account created');
     return;
   }
@@ -204,7 +204,7 @@ async function ensureAdminAccount() {
   if (password) {
     const hash = await bcrypt.hash(password, 12);
     db.prepare('UPDATE admins SET password = ?, name = ? WHERE id = ?')
-      .run(hash, 'Aqua Vérité Admin', existing.id);
+      .run(hash, 'Aqua Vèntèra Admin', existing.id);
     console.log('  ✓ Admin password ensured');
   } else {
     console.log('  ✓ Admin exists; no ADMIN_PASSWORD provided so password not updated');
@@ -214,7 +214,7 @@ async function ensureAdminAccount() {
 // ── Start ─────────────────────────────────────────────────
 app.listen(PORT, async () => {
   console.log('\n  ╔═══════════════════════════════════╗');
-  console.log('  ║      Aqua Vérité Server           ║');
+  console.log('  ║      Aqua Vèntèra Server           ║');
   console.log('  ╠═══════════════════════════════════╣');
   console.log('  ║  Port  : ' + PORT);
   console.log('  ║  Env   : ' + (process.env.NODE_ENV || 'development'));

@@ -46,12 +46,12 @@ function wrapEmail(content) {
 </style></head>
 <body><div class="shell">
   <div class="header">
-    <p class="brand">Aqua <em>Vérité</em></p>
+    <p class="brand">Aqua <em>Vèntèra</em></p>
     <p class="tagline">Bespoke Hydration · Est. for the Discerning</p>
   </div>
   <div class="body">${content}</div>
   <div class="footer">
-    <p class="foot-p">© Aqua Vérité · Crafted with intention · No two bottles are the same</p>
+    <p class="foot-p">© Aqua Vèntèra · Crafted with intention · No two bottles are the same</p>
     <p class="foot-p" style="margin-top:6px;"><a href="{{BASE_URL}}" style="color:#C9A84C;text-decoration:none;">{{BASE_URL}}</a></p>
   </div>
 </div></body></html>`;
@@ -64,7 +64,7 @@ function buildWelcomeEmail(data) {
     <h1>Your enquiry has been received.</h1>
     <div class="gold-rule"></div>
     <p>Dear ${data.full_name},</p>
-    <p>Thank you for reaching out to Aqua Vérité. We have received your enquiry and our design team will be in touch within 24 hours to begin the conversation about your bespoke collection.</p>
+    <p>Thank you for reaching out to Aqua Vèntèra. We have received your enquiry and our design team will be in touch within 24 hours to begin the conversation about your bespoke collection.</p>
     <div class="detail-box">
       ${data.wedding_date ? `<div class="detail-row"><span class="detail-lbl">Wedding Date</span><span class="detail-val">${data.wedding_date}</span></div>` : ''}
       ${data.guest_count  ? `<div class="detail-row"><span class="detail-lbl">Guest Count</span><span class="detail-val">${data.guest_count}</span></div>` : ''}
@@ -76,9 +76,9 @@ function buildWelcomeEmail(data) {
   `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaverite.com');
 
   return {
-    subject: `Aqua Vérité — We've received your enquiry · #AV-${data.uuid.slice(0,8).toUpperCase()}`,
+    subject: `Aqua Vèntèra — We've received your enquiry · #AV-${data.uuid.slice(0,8).toUpperCase()}`,
     html,
-    text: `Dear ${data.full_name},\n\nThank you for your enquiry. Our team will be in touch within 24 hours.\n\nReference: #AV-${data.uuid.slice(0,8).toUpperCase()}\n\nAqua Vérité`,
+    text: `Dear ${data.full_name},\n\nThank you for your enquiry. Our team will be in touch within 24 hours.\n\nReference: #AV-${data.uuid.slice(0,8).toUpperCase()}\n\nAqua Vèntèra`,
   };
 }
 
@@ -115,16 +115,16 @@ function buildDesignProofEmail(data, proofUrl) {
     <h1>Your design proof is ready.</h1>
     <div class="gold-rule"></div>
     <p>Dear ${data.full_name},</p>
-    <p>Our design team has prepared the initial proof for your bespoke Aqua Vérité collection. Please review the engraving, cap finish, and packaging below.</p>
+    <p>Our design team has prepared the initial proof for your bespoke Aqua Vèntèra collection. Please review the engraving, cap finish, and packaging below.</p>
     ${proofUrl ? `<a href="${proofUrl}" class="cta-btn">View Your Design Proof →</a>` : ''}
     <p style="margin-top:24px;">Once you have reviewed the proof, simply reply to this email with your feedback. We will revise until it is exactly right — because this is permanent in glass.</p>
     <p style="color:rgba(250,247,242,0.4);font-size:11px;">Reference: <span class="gold">#AV-${data.uuid.slice(0,8).toUpperCase()}</span></p>
   `).replace(/\{\{BASE_URL\}\}/g, process.env.BASE_URL || 'https://aquaverite.com');
 
   return {
-    subject: `Aqua Vérité — Your design proof is ready · #AV-${data.uuid.slice(0,8).toUpperCase()}`,
+    subject: `Aqua Vèntèra — Your design proof is ready · #AV-${data.uuid.slice(0,8).toUpperCase()}`,
     html,
-    text: `Dear ${data.full_name},\n\nYour design proof is ready. Please review it at: ${proofUrl}\n\nAqua Vérité`,
+    text: `Dear ${data.full_name},\n\nYour design proof is ready. Please review it at: ${proofUrl}\n\nAqua Vèntèra`,
   };
 }
 
@@ -136,7 +136,7 @@ async function sendMail({ to, subject, html, text }) {
   }
   try {
     const info = await getTransporter().sendMail({
-      from: `"${process.env.BRAND_NAME || 'Aqua Vérité'}" <${process.env.SMTP_USER}>`,
+      from: `"${process.env.BRAND_NAME || 'Aqua Vèntèra'}" <${process.env.SMTP_USER}>`,
       to, subject, html, text,
     });
     console.log('[MAILER] Sent:', info.messageId);
