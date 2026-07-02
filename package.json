@@ -12,7 +12,6 @@
     "@supabase/supabase-js": "^2.15.0",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
-    "pg": "^8.12.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -24,6 +23,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^9.0.1",
+    "pg": "^8.12.0",
     "uuid": "^11.1.1"
   },
   "devDependencies": {

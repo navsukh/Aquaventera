@@ -10,7 +10,7 @@ const { getDb, transaction } = require('../db/database');
 const { sendEnquiryConfirmation, sendAdminAlert } = require('../services/email');
 const rateLimit = require('express-rate-limit');
 const { upload } = require('../middleware/upload');
-const { validateCsrf } = require('../middleware/csrf');
+
 const { uploadToSupabase } = require('../services/supabase');
 
 // Rate limit: 5 submissions per 15 min per IP
@@ -92,7 +92,12 @@ function genRef() {
 }
 
 // ── POST /api/enquiry — multipart/form-data with attachments ─────────────────────────
-router.post('/', submitLimiter, validateCsrf, upload.array('attachments', 6), submitRules, async (req, res) => {
+router.post(
+  '/',
+  submitLimiter,
+  upload.array('attachments', 6),
+  submitRules,
+  async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });

@@ -25,7 +25,7 @@ const rateLimit    = require('express-rate-limit');
 const enquiryRouter = require('./routes/enquiry');
 const adminRouter   = require('./routes/admin');
 const { getDb, initDb } = require('./db/database');
-const { ensureCsrfToken } = require('./middleware/csrf');
+
 const bcrypt = require('bcryptjs');
 
 const app  = express();
@@ -44,9 +44,12 @@ app.use(helmet({
       scriptSrc:  ["'self'", "'sha256-2428bc30d43d09289377ea0a9c4c0a7843c15aa69463bae3ddca99c65fdcf21'"],
       scriptSrcElem: ["'self'"],
       scriptSrcAttr: ["'self'"],
-      styleSrc:   ["'self'", "'sha256-dfc51696c81938eed929646b695775f38605b0883af508b724aee81838de1323'",
-                   "https://fonts.googleapis.com",
-                   "https://fonts.gstatic.com"],
+      styleSrc: [
+  "'self'",
+  "'unsafe-inline'",
+  "https://fonts.googleapis.com",
+  "https://fonts.gstatic.com"
+],
       fontSrc:    ["'self'", "https://fonts.gstatic.com"],
       imgSrc:     ["'self'", "data:", "blob:", "https://*.supabase.co", "https://*.supabase.in"],
       connectSrc: ["'self'", "https://*.supabase.co", "https://*.supabase.in"],
@@ -88,7 +91,7 @@ app.use(cookieParser());
 // ── Body parsers (must come BEFORE routes) ────────────────
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
-app.use(ensureCsrfToken);
+
 
 app.use((req, res, next) => {
   if (req.path === '/admin' || req.path.startsWith('/admin/') || req.path.startsWith('/api/admin')) {
@@ -273,6 +276,7 @@ if (require.main === module || process.env.NODE_ENV === 'test') {
     process.exit(1);
   });
 }
+app.use('/api', require('./routes/security'));
 
 module.exports = app;
 module.exports.startServer = startServer;

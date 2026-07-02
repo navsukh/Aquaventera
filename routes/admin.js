@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const { getDb }        = require('../db/database');
 const { requireAdmin } = require('../middleware/auth');
 const { validateCsrf } = require('../middleware/csrf');
+const { getCsrfToken } = require('../middleware/csrf');
 const { sendDesignProofEmail } = require('../services/email');
 
 const SECRET  = () => process.env.JWT_SECRET;
@@ -315,5 +316,5 @@ router.post('/change-password', requireAdmin, validateCsrf, async (req, res) => 
   await db.query('UPDATE admins SET password = $1 WHERE id = $2', [hash, req.admin.id]);
   return res.json({ success: true });
 });
-
+router.get('/csrf', getCsrfToken);
 module.exports = router;

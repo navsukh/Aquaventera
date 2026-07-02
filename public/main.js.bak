@@ -410,13 +410,7 @@ function validateEnquiryForm(){
 
   return {ok:false, errors:errs};
 }
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return parts.pop().split(';').shift();
-  }
-}
+
 async function submitEnquiry(){
   var btn=document.getElementById('form-submit-btn');
   var successEl=document.getElementById('form-success');
@@ -454,12 +448,9 @@ async function submitEnquiry(){
   // Try the backend API first
   try {
   const res = await fetch('/api/enquiry', {
-  method: 'POST',
-  headers: {
-    'x-csrf-token': decodeURIComponent(getCookie('XSRF-TOKEN'))
-  },
-  body: formData
-});
+    method: 'POST',
+    body: formData
+  });
     var json=await res.json();
 
     if(res.ok){
@@ -897,41 +888,319 @@ function setChip(s, el) {
   d.style.letterSpacing = m[s].ls;
   l.textContent = m[s].lbl;
 }
-const monoInput = document.getElementById("mono-in");
 
-if (monoInput) {
-  monoInput.addEventListener("input", function () {
-    handleInput(this);
+var currentTab = 'initials';
+var SZ = {
+  '250': { w: 66, h: 195, waterY: 270, barW: '35%', mm: '145mm', label: '250 ml' },
+  '330': { w: 88, h: 260, waterY: 200, barW: '52%', mm: '185mm', label: '330 ml' },
+  '500': { w: 100, h: 310, waterY: 155, barW: '66%', mm: '220mm', label: '500 ml' },
+  '750': { w: 112, h: 365, waterY: 105, barW: '80%', mm: '258mm', label: '750 ml' },
+  'inf': { w: 120, h: 400, waterY: 60, barW: '93%', mm: 'Custom', label: 'Custom' }
+};
+
+function selectSize(card, ml, detail) {
+  document.querySelectorAll('.sz-card').forEach(function (c) { c.classList.remove('active-sz'); });
+  if (card) card.classList.add('active-sz');
+  var d = SZ[ml] || SZ['330'];
+  var nameTxt = card ? (card.getAttribute('data-name') || card.querySelector('.sz-name').textContent) : 'The Classic';
+  var detailTxt = detail || (card ? (card.getAttribute('data-detail') || '') : '');
+  var svName = document.getElementById('sv-name');
+  if (svName) svName.textContent = nameTxt;
+  var svMl = document.getElementById('sv-ml');
+  if (svMl) svMl.textContent = d.label;
+  var svDet = document.getElementById('sv-det');
+  if (svDet) svDet.textContent = detailTxt;
+  var svLbl = document.getElementById('sv-lbl');
+  if (svLbl) svLbl.textContent = nameTxt;
+  var svMm = document.getElementById('sv-mm');
+  if (svMm) svMm.textContent = d.mm;
+  var svg = document.getElementById('sv-svg');
+  if (svg) {
+    svg.style.width = d.w + 'px';
+    svg.style.height = d.h + 'px';
+  }
+  var water = document.getElementById('sv-water');
+  var wsurf = document.getElementById('sv-wsurf');
+  if (water) {
+    water.setAttribute('y', d.waterY);
+    water.setAttribute('height', 384 - d.waterY);
+  }
+  if (wsurf) wsurf.setAttribute('cy', d.waterY);
+  var bar = document.getElementById('sv-bar');
+  if (bar) bar.style.width = d.barW;
+  var formSel = document.getElementById('f-size');
+  if (formSel) {
+    var opts = formSel.options;
+    for (var i = 0; i < opts.length; i++) {
+      if (opts[i].text.includes(d.label.split(' ')[0] + ' ml') || opts[i].text.toLowerCase().includes(nameTxt.toLowerCase())) {
+        formSel.selectedIndex = i;
+        break;
+      }
+    }
+  }
+}
+
+function bindSizeCards() {
+  document.querySelectorAll('.sz-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      var ml = card.getAttribute('data-ml') || '330';
+      var name = card.getAttribute('data-name') || '';
+      var detail = card.getAttribute('data-detail') || '';
+      selectSize(card, ml, detail, name);
+    });
   });
 }
-// ===== CSP Event Listeners =====
 
-// Tabs
-document.querySelectorAll(".tab").forEach(tab => {
-    tab.addEventListener("click", function () {
-        setTab(this.dataset.tab, this);
+function submitEnquiry() {
+  var btn = document.getElementById('form-submit-btn');
+  var successEl = document.getElementById('form-success');
+  var errorEl = document.getElementById('form-error');
+  var errMsg = document.getElementById('form-error-msg');
+  if (successEl) successEl.style.display = 'none';
+  if (errorEl) errorEl.style.display = 'none';
+  if (!errMsg || !btn) return;
+
+  var validation = validateEnquiryForm();
+  if (!validation.ok) {
+    errMsg.textContent = validation.errors.join(' ');
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  var formData = new FormData();
+  formData.append('name', validation.name);
+  formData.append('email', validation.email);
+  formData.append('phone', validation.phone);
+  formData.append('wedding_date', normalizeDateValue(validation.wedding_date));
+  formData.append('guest_count', validation.guest_count);
+  formData.append('bottle_size', validation.bottle_size);
+  formData.append('engraving_text', validation.engraving_text);
+  formData.append('script_choice', validation.script_choice || '');
+  formData.append('palette', validation.palette || '');
+  formData.append('packaging', validation.packaging || '');
+  formData.append('custom_message', validation.custom_message || '');
+  formData.append('vision', validation.vision || '');
+  var uploadEl = document.getElementById('f-attachments');
+  if (uploadEl && uploadEl.files) {
+    Array.from(uploadEl.files).forEach(function (file) { formData.append('attachments', file); });
+  }
+
+  fetch('/api/enquiry', {
+    method: 'POST',
+    headers: { 'x-csrf-token': getCookie('XSRF-TOKEN') },
+    body: formData
+  }).then(function (res) {
+    return res.json().then(function (json) { return { res: res, json: json }; });
+  }).then(function (result) {
+    if (result.res.ok) {
+      successEl.style.display = 'block';
+      document.getElementById('form-success-msg').textContent = result.json.message || 'We will be in touch within 24 hours.';
+      document.getElementById('form-success-ref').textContent = result.json.ref ? ('Reference: ' + result.json.ref) : '';
+      btn.style.display = 'none';
+      ['f-name', 'f-email', 'f-phone', 'f-date', 'f-engraving', 'f-vision'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      return;
+    }
+    var msg = result.json.errors ? result.json.errors.map(function (e) { return e.msg; }).join(' · ') : (result.json.error || 'Submission failed. Please try again.');
+    errMsg.textContent = msg;
+    errorEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Request a Design Consultation →';
+  }).catch(function () {
+    createMailtoFallback(validation);
+    btn.disabled = false;
+    btn.textContent = 'Request a Design Consultation →';
+  });
+}
+
+function onPageReady() {
+  bindEnquiryFieldValidation();
+  bindSizeCards();
+  var tabs = document.querySelectorAll('[data-tab]');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      setTab(tab.dataset.tab, tab);
     });
-});
-
-// Font chips
-document.querySelectorAll(".chip").forEach(chip => {
-    chip.addEventListener("click", function () {
-        setChip(this.dataset.font, this);
-    });
-});
-
-// Preview button
-document.getElementById("preview-btn")
-?.addEventListener("click", triggerEngPreview);
-
-// Input
-document.getElementById("mono-in")
-?.addEventListener("input", function () {
-    handleInput(this);
-});
-
-// Submit
-document.getElementById("form-submit-btn")?.addEventListener("click", function () {
-    console.log("Button clicked");
+  });
+  var monoIn = document.getElementById('mono-in');
+  if (monoIn) {
+    monoIn.addEventListener('input', function () { handleInput(monoIn); });
+  }
+  var previewBtn = document.getElementById('preview-btn');
+  if (previewBtn) previewBtn.addEventListener('click', triggerEngPreview);
+  var chips = document.querySelectorAll('[data-chip]');
+  chips.forEach(function (chip) {
+    chip.addEventListener('click', function () { setChip(chip.dataset.chip, chip); });
+  });
+  var submitBtn = document.getElementById('form-submit-btn');
+  if (submitBtn) submitBtn.addEventListener('click', function (event) {
+    event.preventDefault();
     submitEnquiry();
-});
+  });
+  var navLinks = document.querySelectorAll('nav a[href^="#"]');
+  navLinks.forEach(function (link) {
+    if (link.getAttribute('href') === '#') return;
+    link.addEventListener('click', function (event) {
+      if (link.hash) {
+        event.preventDefault();
+        var target = document.querySelector(link.hash);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+  window.addEventListener('scroll', function () {
+    document.getElementById('nav').classList.toggle('stuck', window.scrollY > 60);
+  });
+  document.querySelectorAll('.rv').forEach(function (el) { rvIO.observe(el); });
+  var card = document.querySelector('.sz-card.active-sz');
+  if (card) selectSize(card, '330', '330 ml · Borosilicate · Three cap finishes');
+  tick();
+}
+
+var rvIO = new IntersectionObserver(function (entries) {
+  entries.forEach(function (entry) {
+    if (entry.isIntersecting) entry.target.classList.add('in');
+  });
+}, { threshold: 0.08 });
+
+var dustEl = document.getElementById('dust-layer');
+if (dustEl) {
+  for (var i = 0; i < 30; i++) {
+    var p = document.createElement('div');
+    p.className = 'dust-p spark spark-' + (i % 4 + 1);
+    p.style.animationDelay = (Math.random() * 8) + 's';
+    p.style.animationDuration = (6 + Math.random() * 6) + 's';
+    p.style.width = (1 + Math.random() * 2) + 'px';
+    p.style.height = (1 + Math.random() * 2) + 'px';
+    dustEl.appendChild(p);
+  }
+}
+
+var storyEl = document.getElementById('story');
+var svgBottle = document.getElementById('svg-bottle');
+var svgCap = document.getElementById('svg-cap');
+var capBody = document.getElementById('cap-body');
+var capTopdown = document.getElementById('cap-topdown');
+var svgWater2 = document.getElementById('svg-water');
+var svgWaterSurf = document.getElementById('svg-water-surf');
+var svgEngraving = document.getElementById('svg-engraving');
+var svgLaserDot = document.getElementById('svg-laser-dot');
+var svgLaserTrail = document.getElementById('svg-laser-trail');
+var floorRef = document.getElementById('floor-ref');
+var zoomRing = document.getElementById('zoom-ring');
+var laserWrap = document.getElementById('laser-wrap');
+var engLabel = document.getElementById('eng-label');
+var rimLight = document.querySelector('.rim-light');
+var panels = [1,2,3,4,5].map(function (i) { return document.getElementById('sp' + i); });
+var dots = [0,1,2,3,4].map(function (i) { return document.getElementById('d' + i); });
+var phaseWordEl = document.getElementById('story-phase');
+var phaseNames = ['The Vessel', 'The Cap Descends', 'The Seal', 'Cut by Light', 'The Gift'];
+var lastPh = -1;
+
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function ss(lo, hi, v) { var t = clamp((v - lo) / (hi - lo), 0, 1); return t * t * (3 - 2 * t); }
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function getP() {
+  if (!storyEl) return 0;
+  var r = storyEl.getBoundingClientRect();
+  var total = storyEl.offsetHeight - window.innerHeight;
+  if (total <= 0) return 0;
+  return clamp(-r.top / total, 0, 1);
+}
+
+function tick() {
+  requestAnimationFrame(tick);
+  var p = getP();
+  var ph = 0;
+  if (p < 0.15) {
+    var t = ss(0, 0.15, p); ph = 0;
+    if (svgBottle) { svgBottle.style.transform = 'translateY(' + lerp(120, 0, t) + 'px)'; svgBottle.style.opacity = t; }
+    if (svgWater2) { svgWater2.setAttribute('y', lerp(480, 300, t)); svgWater2.setAttribute('height', Math.max(0, 384 - (lerp(480, 300, t) || 0))); svgWater2.style.opacity = t * 0.9; }
+    if (svgWaterSurf) { svgWaterSurf.setAttribute('cy', lerp(480, 300, t)); svgWaterSurf.style.opacity = t * 0.8; }
+    if (svgCap) { svgCap.style.transform = 'translateY(-300px)'; svgCap.style.opacity = '0'; }
+    if (svgEngraving) svgEngraving.style.opacity = '0';
+    if (svgLaserDot) svgLaserDot.style.opacity = '0';
+    if (svgLaserTrail) svgLaserTrail.style.opacity = '0';
+    if (zoomRing) zoomRing.classList.remove('show');
+    if (laserWrap) laserWrap.classList.remove('show');
+    if (engLabel) engLabel.classList.remove('show');
+    if (floorRef) floorRef.style.opacity = t * 0.8;
+    if (rimLight) rimLight.style.opacity = t * 0.5;
+  } else if (p < 0.32) {
+    var t = ss(0.15, 0.32, p); ph = 1;
+    if (svgBottle) { svgBottle.style.transform = 'translateY(0px)'; svgBottle.style.opacity = '1'; }
+    if (svgWater2) svgWater2.style.opacity = '0.85';
+    if (svgCap) { svgCap.style.transform = 'translateY(' + lerp(-260, -10, t) + 'px) scaleX(' + lerp(1.4,1,t) + ')'; svgCap.style.opacity = Math.min(1,t*2); }
+    if (capTopdown) capTopdown.style.opacity = Math.min(1,t*1.5);
+    if (capBody) capBody.style.opacity = Math.max(0,1-t*2);
+    if (svgEngraving) svgEngraving.style.opacity = '0';
+    if (svgLaserDot) svgLaserDot.style.opacity = '0';
+    if (svgLaserTrail) svgLaserTrail.style.opacity = '0';
+    if (zoomRing) zoomRing.classList.remove('show');
+    if (laserWrap) laserWrap.classList.remove('show');
+    if (engLabel) engLabel.classList.remove('show');
+    if (floorRef) floorRef.style.opacity = '0.8';
+    if (rimLight) rimLight.style.opacity = '0.5';
+  } else if (p < 0.48) {
+    var t = ss(0.32, 0.48, p); ph = 2;
+    if (svgBottle) { svgBottle.style.transform = 'translateY(0px)'; svgBottle.style.opacity = '1'; }
+    if (svgCap) { var bounce = t < 0.85 ? lerp(-10, -2, ss(0,0.85,t)) : lerp(-2,0,ss(0.85,1,t)); svgCap.style.transform = 'translateY(' + bounce + 'px)'; svgCap.style.opacity = '1'; }
+    if (capTopdown) capTopdown.style.opacity = Math.max(0,1-t*1.5);
+    if (capBody) capBody.style.opacity = Math.min(1,t*1.5);
+    if (svgEngraving) svgEngraving.style.opacity = '0';
+    if (svgLaserDot) svgLaserDot.style.opacity = '0';
+    if (svgLaserTrail) svgLaserTrail.style.opacity = '0';
+    if (zoomRing) zoomRing.classList.remove('show');
+    if (laserWrap) laserWrap.classList.remove('show');
+    if (engLabel) engLabel.classList.remove('show');
+    if (floorRef) floorRef.style.opacity = '1';
+    if (rimLight) rimLight.style.opacity = '0.8';
+  } else if (p < 0.58) {
+    var t = ss(0.48, 0.58, p); ph = 3;
+    if (svgBottle) svgBottle.style.transform = 'translateY(' + lerp(0,60,t) + 'px) scale(' + lerp(1,1.5,t) + ')';
+    if (svgCap) svgCap.style.transform = 'translateY(' + lerp(0,60,t) + 'px) scale(' + lerp(1,1.5,t) + ')';
+    if (svgEngraving) svgEngraving.style.opacity = t;
+    if (zoomRing) zoomRing.classList.toggle('show', t>0.4);
+    if (engLabel) engLabel.classList.toggle('show', t>0.6);
+    if (laserWrap) laserWrap.classList.remove('show');
+    if (svgLaserDot) svgLaserDot.style.opacity = '0';
+    if (svgLaserTrail) svgLaserTrail.style.opacity = '0';
+    if (floorRef) floorRef.style.opacity = '1';
+    if (rimLight) rimLight.style.opacity = '1';
+  } else if (p < 0.80) {
+    var t = ss(0.58, 0.80, p); ph = 3;
+    if (svgBottle) svgBottle.style.transform = 'translateY(60px) scale(1.5) skewY(' + (Math.sin(t * Math.PI * 2) * 6 * 0.4) + 'deg)';
+    if (svgCap) svgCap.style.transform = 'translateY(60px) scale(1.5) skewY(' + (Math.sin(t * Math.PI * 2) * 6 * 0.4) + 'deg)';
+    if (svgEngraving) svgEngraving.style.opacity = '1';
+    if (laserWrap) laserWrap.classList.add('show');
+    if (svgLaserDot) svgLaserDot.style.opacity = '1';
+    if (svgLaserTrail) svgLaserTrail.style.opacity = '1';
+    if (zoomRing) zoomRing.classList.add('show');
+    if (engLabel) engLabel.classList.add('show');
+    if (floorRef) floorRef.style.opacity = '1';
+    if (rimLight) rimLight.style.opacity = '' + (0.8 + Math.sin(t * Math.PI * 4) * 0.2);
+  } else {
+    var t = ss(0.80, 1.0, p); ph = 4;
+    if (svgBottle) svgBottle.style.transform = 'translateY(' + lerp(60, -20, t) + 'px) scale(' + lerp(1.5, 1.05, t) + ')';
+    if (svgCap) svgCap.style.transform = 'translateY(' + lerp(60, -20, t) + 'px) scale(' + lerp(1.5, 1.05, t) + ')';
+    if (svgEngraving) svgEngraving.style.opacity = '1';
+    if (laserWrap) laserWrap.classList.remove('show');
+    if (svgLaserDot) svgLaserDot.style.opacity = '0';
+    if (svgLaserTrail) svgLaserTrail.style.opacity = '0';
+    if (zoomRing) zoomRing.classList.remove('show');
+    if (engLabel) engLabel.classList.add('show');
+    if (floorRef) floorRef.style.opacity = '' + lerp(1, 0.6, t);
+    if (rimLight) rimLight.style.opacity = '' + lerp(1, 1.5, t);
+  }
+  panels.forEach(function (el, i) { if (el) el.classList.toggle('show', i === ph); });
+  dots.forEach(function (el, i) { if (el) el.classList.toggle('on', i === ph); });
+  if (ph !== lastPh && phaseWordEl) phaseWordEl.textContent = phaseNames[ph];
+  lastPh = ph;
+}
+
+document.addEventListener('DOMContentLoaded', onPageReady);
