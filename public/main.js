@@ -12,21 +12,65 @@ function setFieldError(id, hasError) {
 }
 
 // ── CURSOR ────────────────────────────────────────────────
+// Skip the custom cursor entirely on touch/coarse-pointer devices —
+// there is no mouse to track, so save the animation frame budget.
+var isTouchDevice = window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches;
 const $c=document.getElementById('cur'),$o=document.getElementById('cur-o');
-let mx=0,my=0,ox=0,oy=0;
-document.addEventListener('mousemove',function(e){
-  mx=e.clientX;my=e.clientY;
-  $c.style.left=mx+'px';$c.style.top=my+'px';
-});
-(function ol(){ox+=(mx-ox)*.12;oy+=(my-oy)*.12;
-  $o.style.left=ox+'px';$o.style.top=oy+'px';
-  requestAnimationFrame(ol);
-})();
+if(!isTouchDevice){
+  let mx=0,my=0,ox=0,oy=0;
+  document.addEventListener('mousemove',function(e){
+    mx=e.clientX;my=e.clientY;
+    $c.style.left=mx+'px';$c.style.top=my+'px';
+  });
+  (function ol(){ox+=(mx-ox)*.12;oy+=(my-oy)*.12;
+    $o.style.left=ox+'px';$o.style.top=oy+'px';
+    requestAnimationFrame(ol);
+  })();
+}
 
 // ── NAV ───────────────────────────────────────────────────
 window.addEventListener('scroll',function(){
   document.getElementById('nav').classList.toggle('stuck',window.scrollY>60);
 });
+
+// ── MOBILE NAV ────────────────────────────────────────────
+(function(){
+  var toggle=document.getElementById('nav-toggle');
+  var panel=document.getElementById('nav-mobile');
+  if(!toggle||!panel) return;
+
+  function closeMenu(){
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden','true');
+    toggle.setAttribute('aria-expanded','false');
+    toggle.setAttribute('aria-label','Open menu');
+    document.body.style.overflow='';
+  }
+  function openMenu(){
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden','false');
+    toggle.setAttribute('aria-expanded','true');
+    toggle.setAttribute('aria-label','Close menu');
+    document.body.style.overflow='hidden';
+  }
+
+  toggle.addEventListener('click',function(){
+    var isOpen=toggle.getAttribute('aria-expanded')==='true';
+    if(isOpen) closeMenu(); else openMenu();
+  });
+
+  panel.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',closeMenu);
+  });
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape') closeMenu();
+  });
+
+  window.addEventListener('resize',function(){
+    if(window.innerWidth>860) closeMenu();
+  });
+})();
 
 // ── REVEAL ON SCROLL ──────────────────────────────────────
 var rvIO=new IntersectionObserver(function(es){
