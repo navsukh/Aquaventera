@@ -79,151 +79,10 @@ var rvIO=new IntersectionObserver(function(es){
 document.querySelectorAll('.rv').forEach(function(el){rvIO.observe(el);});
 
 // ── ENGRAVING STUDIO ──────────────────────────────────────
-// FIX: use textContent so HTML entities render correctly
+// Canonical implementation lives further down this file, right
+// after the enquiry-form helpers, alongside the CSP event bindings.
 let currentTab = 'initials';
 
-// Live preview update
-function updateMono(v) {
-  var d = document.getElementById('mono-disp');
-  d.textContent = v.trim() || 'R&S';
-
-  // Update SVG engraving text live
-  var engT = document.getElementById('eng-initials-text');
-  if (engT) engT.textContent = v.trim() || 'R & S';
-}
-
-// Handles typing in the input box
-function handleInput(input) {
-  let value = input.value;
-
-  // Wedding Date formatting
-  if (currentTab === 'date') {
-
-    // Allow only numbers
-    value = value.replace(/\D/g, '');
-
-    // Maximum 8 digits (DDMMYYYY)
-    value = value.substring(0, 8);
-
-    // Auto-insert dots -> DD.MM.YYYY
-    if (value.length > 4) {
-      value = value.replace(
-        /^(\d{2})(\d{2})(\d{0,4})$/,
-        '$1.$2.$3'
-      );
-    } else if (value.length > 2) {
-      value = value.replace(
-        /^(\d{2})(\d{0,2})$/,
-        '$1.$2'
-      );
-    }
-
-    input.value = value;
-  }
-
-  updateMono(input.value);
-}
-
-// Preview button
-function triggerEngPreview() {
-  var v = document.getElementById('mono-in').value;
-
-  if (!v.trim()) {
-    document.getElementById('mono-in').value = 'R & S';
-    updateMono('R & S');
-  } else {
-    updateMono(v);
-  }
-
-  // Pulse animation on ring
-  var ring = document.querySelector('.mono-ring');
-
-  if (ring) {
-    ring.style.boxShadow = '0 0 0 2px rgba(201,168,76,.5)';
-
-    setTimeout(function () {
-      ring.style.boxShadow = '';
-    }, 600);
-  }
-}
-
-// Tab switching
-function setTab(t, el) {
-  currentTab = t;
-
-  document.querySelectorAll('.tab').forEach(function (x) {
-    x.classList.remove('on');
-  });
-
-  if (el) el.classList.add('on');
-
-  var input = document.getElementById('mono-in');
-
-  if (t === 'initials') {
-    input.placeholder = 'e.g. R & S';
-    input.maxLength = 8;
-  }
-
-  else if (t === 'date') {
-    input.placeholder = 'DD (01-31).MM (01-12).YYYY (2026-2030 only)';
-    input.maxLength = 10;
-  }
-
-  else if (t === 'verse') {
-    input.placeholder = 'e.g. Forever begins today';
-    input.maxLength = 50;
-  }
-
-  input.value = '';
-  updateMono('');
-}
-
-// Font style selection
-function setChip(s, el) {
-  document.querySelectorAll('.chip').forEach(function (x) {
-    x.classList.remove('on');
-  });
-
-  if (el) el.classList.add('on');
-
-  var d = document.getElementById('mono-disp');
-  var l = document.getElementById('mono-lbl');
-
-  var m = {
-    italic: {
-      style: 'italic',
-      weight: '300',
-      ls: '-0.03em',
-      lbl: 'Live preview · Italic Script'
-    },
-
-    serif: {
-      style: 'normal',
-      weight: '400',
-      ls: '0.05em',
-      lbl: 'Live preview · Classic Serif'
-    },
-
-    modern: {
-      style: 'normal',
-      weight: '300',
-      ls: '0.22em',
-      lbl: 'Live preview · Modern Roman'
-    },
-
-    nastaliq: {
-      style: 'italic',
-      weight: '300',
-      ls: '0.02em',
-      lbl: 'Live preview · Nastaliq Style'
-    }
-  };
-
-  d.style.fontStyle = m[s].style;
-  d.style.fontWeight = m[s].weight;
-  d.style.letterSpacing = m[s].ls;
-  l.textContent = m[s].lbl;
-}
 // ── SIZE VISUALIZER — FIXED ───────────────────────────────
 var SZ={
   '250':{w:66, h:195, waterY:270, barW:'35%', mm:'145mm', label:'250 ml'},
@@ -864,18 +723,66 @@ function createMailtoFallback(validation) {
   window.location.href = 'mailto:hello@aquaventera.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 }
 
-function updateMono(v) {
+// Per-tab memory so switching Initials → Wedding Date → Custom Verse
+// never wipes out what was already typed in another tab.
+var tabValues = { initials: '', date: '', verse: '' };
+var tabDefaults = { initials: 'R&S', date: '14.02.2026', verse: 'Forever begins today' };
+var tabConfig = {
+  initials: { placeholder: 'e.g. R & S', maxLength: 8 },
+  date: { placeholder: 'DD.MM.YYYY (auto-formatted, years 2026–2030)', maxLength: 10 },
+  verse: { placeholder: 'e.g. Forever begins today', maxLength: 50 }
+};
+var currentFont = 'italic';
+var FONTS = {
+  italic: { style: 'italic', weight: '300', ls: '-0.03em', transform: 'none', family: "var(--f-serif)", lbl: 'Italic Script' },
+  serif: { style: 'normal', weight: '400', ls: '0.05em', transform: 'none', family: "var(--f-serif)", lbl: 'Classic Serif' },
+  modern: { style: 'normal', weight: '300', ls: '0.22em', transform: 'uppercase', family: "var(--f-sans)", lbl: 'Modern Roman' },
+  nastaliq: { style: 'italic', weight: '300', ls: '0.02em', transform: 'none', family: "var(--f-serif)", lbl: 'Nastaliq Style' },
+  deco: { style: 'normal', weight: '500', ls: '0.3em', transform: 'uppercase', family: "var(--f-sans)", lbl: 'Art Deco' }
+};
+
+// Scales the live-preview glyph to fit whatever is typed, and switches
+// the ring to an elongated "plaque" shape for longer custom verses.
+function sizeMonoDisplay(text) {
+  var ring = document.querySelector('.mono-ring');
   var d = document.getElementById('mono-disp');
-  if (d) d.textContent = v.trim() || 'R&S';
-  var engT = document.getElementById('eng-initials-text');
-  if (engT) engT.textContent = v.trim() || 'R & S';
+  if (!ring || !d) return;
+  var len = (text || '').length;
+
+  if (currentTab === 'verse') {
+    ring.classList.add('mono-plaque');
+    d.style.whiteSpace = 'normal';
+    d.style.fontSize = (len > 30 ? 15 : len > 20 ? 17 : len > 12 ? 19 : 22) + 'px';
+  } else {
+    ring.classList.remove('mono-plaque');
+    d.style.whiteSpace = 'nowrap';
+    if (currentTab === 'date') {
+      d.style.fontSize = (len > 8 ? 28 : 34) + 'px';
+    } else {
+      d.style.fontSize = (len > 6 ? 52 : len > 4 ? 68 : 92) + 'px';
+    }
+  }
 }
 
+// Live preview update
+function updateMono(v) {
+  var d = document.getElementById('mono-disp');
+  var text = (v || '').trim() || tabDefaults[currentTab];
+  if (d) d.textContent = text;
+  sizeMonoDisplay(text);
+
+  // Update SVG engraving text live (initials tab only — that's what the bottle shows)
+  var engT = document.getElementById('eng-initials-text');
+  if (engT) engT.textContent = (currentTab === 'initials' && v && v.trim()) ? v.trim() : 'R & S';
+}
+
+// Handles typing in the input box
 function handleInput(input) {
   var value = input.value;
+
+  // Wedding Date: digits only, auto-insert dots as DD.MM.YYYY — never a native date input
   if (currentTab === 'date') {
-    value = value.replace(/\D/g, '');
-    value = value.substring(0, 8);
+    value = value.replace(/\D/g, '').substring(0, 8);
     if (value.length > 4) {
       value = value.replace(/^(\d{2})(\d{2})(\d{0,4})$/, '$1.$2.$3');
     } else if (value.length > 2) {
@@ -883,71 +790,69 @@ function handleInput(input) {
     }
     input.value = value;
   }
+
+  tabValues[currentTab] = input.value;
   updateMono(input.value);
 }
 
+// Preview button — pulses the ring and forces the current value to render
 function triggerEngPreview() {
   var input = document.getElementById('mono-in');
   if (!input) return;
-  var v = input.value;
-  if (!v.trim()) {
-    input.value = 'R & S';
-    updateMono('R & S');
-  } else {
-    updateMono(v);
+  if (!input.value.trim()) {
+    input.value = tabDefaults[currentTab];
+    tabValues[currentTab] = input.value;
   }
+  updateMono(input.value);
+
   var ring = document.querySelector('.mono-ring');
   if (ring) {
-    ring.style.boxShadow = '0 0 0 2px rgba(201,168,76,.5)';
+    ring.style.boxShadow = '0 0 0 2px rgba(201,168,76,.55), 0 0 44px rgba(201,168,76,.25)';
     setTimeout(function () { ring.style.boxShadow = ''; }, 600);
   }
 }
 
+// Tab switching — restores whatever was already typed on that tab
 function setTab(t, el) {
+  var input = document.getElementById('mono-in');
+  if (input) tabValues[currentTab] = input.value;
+
   currentTab = t;
   document.querySelectorAll('.tab').forEach(function (x) { x.classList.remove('on'); });
   if (el) el.classList.add('on');
-  var input = document.getElementById('mono-in');
-  if (!input) return;
-  if (t === 'initials') {
-    input.placeholder = 'e.g. R & S';
-    input.maxLength = 8;
-  } else if (t === 'date') {
-    input.placeholder = 'DD (01-31).MM (01-12).YYYY (2026-2030 only)';
-    input.maxLength = 10;
-  } else if (t === 'verse') {
-    input.placeholder = 'e.g. Forever begins today';
-    input.maxLength = 50;
+  else {
+    var match = document.querySelector('.tab[data-tab="' + t + '"]');
+    if (match) match.classList.add('on');
   }
-  input.value = '';
-  updateMono('');
+
+  if (!input) return;
+  var cfg = tabConfig[t] || tabConfig.initials;
+  input.placeholder = cfg.placeholder;
+  input.maxLength = cfg.maxLength;
+  input.value = tabValues[t] || '';
+  updateMono(input.value);
 }
 
+// Font style selection
 function setChip(s, el) {
+  if (!FONTS[s]) return;
   document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
   if (el) el.classList.add('on');
+
+  currentFont = s;
   var d = document.getElementById('mono-disp');
   var l = document.getElementById('mono-lbl');
   if (!d || !l) return;
-  var m = {
-    italic: { style: 'italic', weight: '300', ls: '-0.03em', lbl: 'Live preview · Italic Script' },
-    serif: { style: 'normal', weight: '400', ls: '0.05em', lbl: 'Live preview · Classic Serif' },
-    modern: { style: 'normal', weight: '300', ls: '0.22em', lbl: 'Live preview · Modern Roman' },
-    nastaliq: { style: 'italic', weight: '300', ls: '0.02em', lbl: 'Live preview · Nastaliq Style' }
-  };
-  if (!m[s]) return;
-  d.style.fontStyle = m[s].style;
-  d.style.fontWeight = m[s].weight;
-  d.style.letterSpacing = m[s].ls;
-  l.textContent = m[s].lbl;
-}
-const monoInput = document.getElementById("mono-in");
 
-if (monoInput) {
-  monoInput.addEventListener("input", function () {
-    handleInput(this);
-  });
+  var f = FONTS[s];
+  d.style.fontStyle = f.style;
+  d.style.fontWeight = f.weight;
+  d.style.letterSpacing = f.ls;
+  d.style.textTransform = f.transform;
+  d.style.fontFamily = f.family;
+  l.textContent = 'Live preview · ' + f.lbl;
 }
+
 // ===== CSP Event Listeners =====
 
 // Tabs
@@ -973,6 +878,16 @@ document.getElementById("mono-in")
 ?.addEventListener("input", function () {
     handleInput(this);
 });
+
+// Initialize the studio in its default state (Initials tab, Italic Script font)
+(function initEngravingStudio() {
+  var input = document.getElementById('mono-in');
+  if (input) {
+    input.placeholder = tabConfig.initials.placeholder;
+    input.maxLength = tabConfig.initials.maxLength;
+  }
+  updateMono('');
+})();
 
 // Submit
 document.getElementById("form-submit-btn")?.addEventListener("click", function () {

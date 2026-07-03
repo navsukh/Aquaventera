@@ -21,7 +21,6 @@ function csrfHeaders() {
 let TOKEN = localStorage.getItem('av_admin_token');
 let currentAdmin = localStorage.getItem('av_admin_user');
 let currentUUID = null;
-let enqPage = 0;
 let enqTotal = 0;
 let filterStatus = '';
 let searchTimer = null;
