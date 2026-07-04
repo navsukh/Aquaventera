@@ -129,33 +129,80 @@ var MODEL_SHAPES = {
     ring:{cx:60,cy:260,rx:22,ry:28},
     floorRx:32
   },
+  // A true decanter — round, full belly, defined shoulder, stable heel.
   sovereign: {
-    body:'M50,68 Q35,80 30,102 Q25,145 25,230 Q25,318 31,354 Q36,378 50,384 L70,384 Q84,378 89,354 Q95,318 95,230 Q95,145 90,102 Q85,80 70,68 Q60,62 50,68 Z',
-    shoulder:'M30,140 Q60,132 90,140',
-    edges:{x1:27,x2:93,y1:140,y2:356},
-    ring:{cx:60,cy:250,rx:28,ry:34},
-    floorRx:36
+    body:'M60,66 Q40,68 34,88 Q24,120 23,180 Q22,232 28,272 Q33,312 37,338 Q41,366 48,382 Q53,384 60,384 Q67,384 72,382 Q79,366 83,338 Q87,312 92,272 Q98,232 97,180 Q96,120 86,88 Q80,68 60,66 Z',
+    shoulder:'M28,110 Q60,100 92,110',
+    edges:{x1:25,x2:95,y1:140,y2:330},
+    ring:{cx:60,cy:230,rx:30,ry:36},
+    floorRx:34
   },
+  // A teardrop — round bulb up top, drawn down into a slender, elongated base.
   aria: {
-    body:'M34,96 Q26,112 28,132 L30,150 Q30,172 40,194 Q50,224 50,262 Q50,300 46,332 Q42,360 45,378 Q48,384 60,384 Q72,384 75,378 Q78,360 74,332 Q70,300 70,262 Q70,224 80,194 Q90,172 90,150 L92,132 Q94,112 86,96 Q78,80 60,80 Q42,80 34,96 Z',
-    shoulder:'M30,108 Q60,102 90,108',
-    edges:{x1:29,x2:91,y1:108,y2:376},
-    ring:{cx:60,cy:230,rx:18,ry:22},
+    body:'M60,80 Q40,82 32,100 Q24,120 24,152 Q24,180 34,200 Q46,222 50,254 Q54,286 52,318 Q50,348 47,368 Q45,382 52,384 Q56,385 60,385 Q64,385 68,384 Q75,382 73,368 Q70,348 68,318 Q66,286 70,254 Q74,222 86,200 Q96,180 96,152 Q96,120 88,100 Q80,82 60,80 Z',
+    shoulder:'M28,100 Q60,92 92,100',
+    edges:{x1:48,x2:72,y1:140,y2:370},
+    ring:{cx:60,cy:150,rx:22,ry:26},
     floorRx:22
   },
+  // Tall and slender — a long neck, a gentle taper, hospitality-glass proportions.
   palazzo: {
-    body:'M46,56 Q37,64 35,82 Q33,110 33,162 Q33,262 35,322 Q37,368 44,382 Q48,384 60,384 Q72,384 76,382 Q83,368 85,322 Q87,262 87,162 Q87,110 85,82 Q83,64 74,56 Q67,50 60,50 Q53,50 46,56 Z',
-    shoulder:'M35,94 Q60,88 85,94',
-    edges:{x1:34,x2:86,y1:94,y2:378},
-    ring:{cx:60,cy:245,rx:19,ry:30},
+    body:'M60,50 Q50,52 46,64 Q40,84 39,120 Q38,180 38,250 Q38,320 40,360 Q42,378 48,384 Q54,386 60,386 Q66,386 72,384 Q78,378 80,360 Q82,320 82,250 Q82,180 82,120 Q81,84 74,64 Q70,52 60,50 Z',
+    shoulder:'M42,80 Q60,74 78,80',
+    edges:{x1:39,x2:81,y1:100,y2:370},
+    ring:{cx:60,cy:230,rx:20,ry:42},
+    floorRx:24
+  },
+  // A cone — straight architectural edges, wide flat base, minimal curvature.
+  meridian: {
+    body:'M36,110 L30,368 Q30,382 40,384 L80,384 Q90,382 90,368 L84,110 Q82,86 68,80 L52,80 Q38,86 36,110 Z',
+    shoulder:'M34,118 L86,118',
+    edges:{x1:33,x2:87,y1:120,y2:366},
+    ring:{cx:60,cy:250,rx:27,ry:27},
+    floorRx:34
+  }
+};
+
+// Large-scale (0 0 240 520) versions of the same silhouettes for the story
+// section's pinned scroll bottle. Heritage keeps its original hand-tuned
+// artwork; the other four are the exact proportional scale-up of
+// MODEL_SHAPES above, so the story bottle is never a different shape than
+// the one shown in the collection configurator.
+var STORY_SHAPES = {
+  heritage: {
+    body:'M88,100 Q75,112 73,128 L70,148 L70,448 Q70,462 80,466 L160,466 Q170,462 170,448 L170,148 L167,128 Q165,112 152,100 Z',
+    shoulder:'M80,152 Q120,144 160,152',
+    edges:{x1:71.5,x2:168.5,y1:152,y2:444},
+    ring:{cx:120,cy:300,rx:40,ry:50},
+    floorRx:38
+  },
+  sovereign: {
+    body:'M120,83.14 Q84.29,85.55,73.57,109.63 Q55.71,148.16,53.93,220.39 Q52.14,283,62.86,331.16 Q71.79,379.32,78.93,410.62 Q86.07,444.33,98.57,463.59 Q107.5,466,120,466 Q132.5,466,141.43,463.59 Q153.93,444.33,161.07,410.62 Q168.21,379.32,177.14,331.16 Q187.86,283,186.07,220.39 Q184.29,148.16,166.43,109.63 Q155.71,85.55,120,83.14 Z',
+    shoulder:'M62.86,136.12 Q120,124.08,177.14,136.12',
+    edges:{x1:57.5,x2:182.5,y1:172.24,y2:400.99},
+    ring:{cx:120,cy:280.59,rx:53.57,ry:43.34},
+    floorRx:46
+  },
+  aria: {
+    body:'M120,100 Q84.29,102.41,70,124.08 Q55.71,148.16,55.71,186.68 Q55.71,220.39,73.57,244.47 Q95,270.96,102.14,309.49 Q109.29,348.01,105.71,386.54 Q102.14,422.66,96.79,446.74 Q93.21,463.59,105.71,466 Q112.86,467.2,120,467.2 Q127.14,467.2,134.29,466 Q146.79,463.59,143.21,446.74 Q137.86,422.66,134.29,386.54 Q130.71,348.01,137.86,309.49 Q145,270.96,166.43,244.47 Q184.29,220.39,184.29,186.68 Q184.29,148.16,170,124.08 Q155.71,102.41,120,100 Z',
+    shoulder:'M62.86,124.08 Q120,114.45,177.14,124.08',
+    edges:{x1:98.57,x2:141.43,y1:172.24,y2:449.14},
+    ring:{cx:120,cy:184.28,rx:39.29,ry:31.3},
     floorRx:30
   },
-  meridian: {
-    body:'M34,110 L30,368 Q30,382 39,384 L81,384 Q90,382 90,368 L86,110 Q84,90 74,80 L46,80 Q36,90 34,110 Z',
-    shoulder:'M32,120 Q60,114 88,120',
-    edges:{x1:31,x2:89,y1:120,y2:366},
-    ring:{cx:60,cy:255,rx:26,ry:26},
+  palazzo: {
+    body:'M120,63.88 Q102.14,66.29,95,80.74 Q84.29,104.82,82.5,148.16 Q80.71,220.39,80.71,304.67 Q80.71,388.95,84.29,437.11 Q87.86,458.78,98.57,466 Q109.29,468.41,120,468.41 Q130.71,468.41,141.43,466 Q152.14,458.78,155.71,437.11 Q159.29,388.95,159.29,304.67 Q159.29,220.39,159.29,148.16 Q157.5,104.82,145,80.74 Q137.86,66.29,120,63.88 Z',
+    shoulder:'M87.86,100 Q120,92.78,152.14,100',
+    edges:{x1:82.5,x2:157.5,y1:124.08,y2:449.14},
+    ring:{cx:120,cy:280.59,rx:35.71,ry:50.57},
     floorRx:34
+  },
+  meridian: {
+    body:'M77.14,136.12 L66.43,446.74 Q66.43,463.59,84.29,466 L155.71,466 Q173.57,463.59,173.57,446.74 L162.86,136.12 Q159.29,107.22,134.29,100 L105.71,100 Q80.71,107.22,77.14,136.12 Z',
+    shoulder:'M73.57,145.75 L166.43,145.75',
+    edges:{x1:71.79,x2:168.21,y1:148.16,y2:444.33},
+    ring:{cx:120,cy:304.67,rx:48.21,ry:32.51},
+    floorRx:44
   }
 };
 
@@ -179,6 +226,8 @@ function renderModelThumbs(){
   });
 }
 
+var ALL_MODEL_IDS = MODELS.map(function(m){ return m.id; });
+
 // Swaps the configurator's body/neck/engraving-zone geometry to match the model.
 function applyModelShape(modelId){
   var s = MODEL_SHAPES[modelId];
@@ -193,6 +242,7 @@ function applyModelShape(modelId){
   var engText = document.getElementById('sv-eng-text');
   var engSub = document.getElementById('sv-eng-sub');
   var floor = document.getElementById('sv-floor');
+  var svg = document.getElementById('sv-svg');
 
   if (outline) outline.setAttribute('d', s.body);
   if (clip) clip.setAttribute('d', s.body);
@@ -203,6 +253,47 @@ function applyModelShape(modelId){
   if (engText) engText.setAttribute('y', s.ring.cy + 5);
   if (engSub) engSub.setAttribute('y', s.ring.cy + 22);
   if (floor) floor.setAttribute('rx', s.floorRx);
+
+  if (svg) {
+    ALL_MODEL_IDS.forEach(function(id){ svg.classList.remove('model-' + id); });
+    svg.classList.add('model-' + modelId);
+  }
+}
+
+// Swaps the story section's (pinned scroll) bottle to the same silhouette —
+// clicking any model in the Collection updates both the configurator and
+// the storytelling bottle, so they're never showing two different shapes.
+function applyStoryShape(modelId){
+  var s = STORY_SHAPES[modelId];
+  if (!s) return;
+
+  var outline = document.getElementById('story-outline');
+  var clip = document.getElementById('story-clip');
+  var shoulder = document.getElementById('story-shoulder');
+  var edgeL = document.getElementById('story-edge-l');
+  var edgeR = document.getElementById('story-edge-r');
+  var ringOuter = document.getElementById('story-ring-outer');
+  var ringInner = document.getElementById('story-ring-inner');
+  var engText = document.getElementById('eng-initials-text');
+  var engSub = document.getElementById('story-eng-sub');
+  var floor = document.getElementById('story-floor');
+  var stage = document.getElementById('bottle-stage');
+
+  if (outline) outline.setAttribute('d', s.body);
+  if (clip) clip.setAttribute('d', s.body);
+  if (shoulder) shoulder.setAttribute('d', s.shoulder);
+  if (edgeL) { edgeL.setAttribute('x1', s.edges.x1); edgeL.setAttribute('x2', s.edges.x1); edgeL.setAttribute('y1', s.edges.y1); edgeL.setAttribute('y2', s.edges.y2); }
+  if (edgeR) { edgeR.setAttribute('x1', s.edges.x2); edgeR.setAttribute('x2', s.edges.x2); edgeR.setAttribute('y1', s.edges.y1); edgeR.setAttribute('y2', s.edges.y2); }
+  if (ringOuter) { ringOuter.setAttribute('cx', s.ring.cx); ringOuter.setAttribute('cy', s.ring.cy); ringOuter.setAttribute('rx', s.ring.rx); ringOuter.setAttribute('ry', s.ring.ry); }
+  if (ringInner) { ringInner.setAttribute('cx', s.ring.cx); ringInner.setAttribute('cy', s.ring.cy); ringInner.setAttribute('rx', s.ring.rx * 0.82); ringInner.setAttribute('ry', s.ring.ry * 0.82); }
+  if (engText) { engText.setAttribute('x', s.ring.cx); engText.setAttribute('y', s.ring.cy + 10); }
+  if (engSub) { engSub.setAttribute('x', s.ring.cx); engSub.setAttribute('y', s.ring.cy + 40); }
+  if (floor) { floor.setAttribute('cx', s.ring.cx); floor.setAttribute('rx', s.floorRx); }
+
+  if (stage) {
+    ALL_MODEL_IDS.forEach(function(id){ stage.classList.remove('model-' + id); });
+    stage.classList.add('model-' + modelId);
+  }
 }
 
 // Renders the size-card row for whichever model is active.
@@ -290,6 +381,7 @@ function selectModel(id){
   renderSizeCards(id);
   var avail = MODEL_SIZES[id] || [];
   selectSize(avail.indexOf(activeSize) !== -1 ? activeSize : avail[0]);
+  applyStoryShape(id);
 }
 
 function bindModelCards(){
