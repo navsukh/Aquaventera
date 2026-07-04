@@ -160,7 +160,18 @@ nav.stuck{background:rgba(7,7,10,.92);backdrop-filter:blur(16px);}
 /* SIZES — stacked preview below cards */
 #sizes{background:var(--ink);padding:150px 0;}
 .sizes-hd{text-align:center;margin-bottom:60px;}
-.sz-layout{display:flex;flex-direction:column;gap:30px;max-width:1200px;margin:0 auto;padding:0 64px;}
+.model-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2px;max-width:1200px;margin:56px auto 0;}
+.model-card{background:var(--surface);border:1px solid rgba(201,168,76,.08);padding:30px 18px 26px;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;transition:background .4s,border-color .4s;position:relative;font-family:var(--f-sans);color:inherit;}
+.model-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .4s ease;transform-origin:left;}
+.model-card:hover{border-color:rgba(201,168,76,.3);}
+.model-card:hover::before{transform:scaleX(1);}
+.model-card.active-model{background:#1c1c20;border-color:rgba(201,168,76,.4);}
+.model-card.active-model::before{transform:scaleX(1);}
+.model-badge{position:absolute;top:12px;right:12px;font-size:6.8px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,168,76,.3);padding:3px 6px;}
+.model-thumb{width:60px;height:140px;display:block;margin-bottom:18px;}
+.model-name{font-family:var(--f-serif);font-size:16px;font-weight:400;color:var(--cream);margin-bottom:8px;letter-spacing:.01em;}
+.model-tag{font-size:9.5px;line-height:1.7;color:rgba(250,247,242,.4);letter-spacing:.01em;}
+.sz-layout{display:flex;flex-direction:column;gap:30px;max-width:1200px;margin:64px auto 0;padding:0 clamp(20px,5vw,64px);}
 .sz-cards-col{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .sz-cards-col::-webkit-scrollbar{display:none;}
 .sz-cards-inner{display:flex;gap:20px;padding-bottom:20px;}
@@ -411,6 +422,9 @@ footer{padding:clamp(48px,8vw,72px) clamp(20px,5vw,64px) clamp(28px,5vw,44px);}
   .logo{font-size:18px;}
   .bottle-stage{width:120px;height:260px;}
   .sz-card{width:164px;}
+  .model-grid{grid-template-columns:repeat(2,1fr);}
+  .model-thumb{width:48px;height:112px;margin-bottom:12px;}
+  .model-tag{display:none;}
 }
 
 /* ── Touch devices: the custom cursor dot only makes sense with a mouse ── */
@@ -701,49 +715,53 @@ footer{padding:clamp(48px,8vw,72px) clamp(20px,5vw,64px) clamp(28px,5vw,44px);}
   <div class="wrap">
     <div class="sizes-hd">
       <p class="eyebrow rv">The Collection</p>
-      <h2 class="sect-h rv d1">Four Sizes,<br>One Standard</h2>
-      <p class="sect-p rv d2" style="margin:0 auto;">Click any bottle to see it. Every size carries the same uncompromising craft.</p>
+      <h2 class="sect-h rv d1">Five Silhouettes,<br>One Standard</h2>
+      <p class="sect-p rv d2" style="margin:0 auto;">Choose a silhouette, then a size. Every shape — however it's cut — carries the same uncompromising craft.</p>
+    </div>
+
+    <!-- MODEL GRID -->
+    <div class="model-grid rv d2" id="model-grid">
+      <button class="model-card active-model" data-model="heritage" type="button" aria-pressed="true">
+        <span class="model-badge">Most Loved</span>
+        <span class="model-thumb" data-thumb="heritage"></span>
+        <span class="model-name">The Heritage</span>
+        <span class="model-tag">The original silhouette — soft, rounded, and iconic.</span>
+      </button>
+      <button class="model-card" data-model="sovereign" type="button" aria-pressed="false">
+        <span class="model-badge">Grand Format</span>
+        <span class="model-thumb" data-thumb="sovereign"></span>
+        <span class="model-name">The Sovereign</span>
+        <span class="model-tag">A full-bodied decanter, wide and generous.</span>
+      </button>
+      <button class="model-card" data-model="aria" type="button" aria-pressed="false">
+        <span class="model-thumb" data-thumb="aria"></span>
+        <span class="model-name">The Aria</span>
+        <span class="model-tag">A slender teardrop, faceted and light.</span>
+      </button>
+      <button class="model-card" data-model="palazzo" type="button" aria-pressed="false">
+        <span class="model-thumb" data-thumb="palazzo"></span>
+        <span class="model-name">The Palazzo</span>
+        <span class="model-tag">Tall and graceful, inspired by fine hospitality glass.</span>
+      </button>
+      <button class="model-card" data-model="meridian" type="button" aria-pressed="false">
+        <span class="model-badge">New</span>
+        <span class="model-thumb" data-thumb="meridian"></span>
+        <span class="model-name">The Meridian</span>
+        <span class="model-tag">Clean, architectural, and minimal.</span>
+      </button>
     </div>
   </div>
   <div class="sz-layout">
-    <!-- Cards -->
+    <!-- Cards — rendered per selected model by main.js -->
     <div class="sz-cards-col">
-      <div class="sz-cards-inner">
-        <div class="sz-card" data-ml="250" data-name="The Petite" data-detail="250 ml &middot; Borosilicate &middot; Gold or Silver Cap">
-          <div class="sz-ml">250</div><p class="sz-name">The Petite</p>
-          <p class="sz-desc">A jewel-sized vessel for intimate tables. Perfect alongside mithai and dried fruits.</p>
-          <p class="sz-det">250 ml &middot; Borosilicate &middot; Gold or Silver Cap</p>
-        </div>
-        <div class="sz-card active-sz" data-ml="330" data-name="The Classic" data-detail="330 ml &middot; Borosilicate &middot; Three cap finishes">
-          <div class="sz-badge">Most Loved</div>
-          <div class="sz-ml">330</div><p class="sz-name">The Classic</p>
-          <p class="sz-desc">The signature size. Slips into any bag for the drive home after shawarma and kebabs.</p>
-          <p class="sz-det">330 ml &middot; Borosilicate &middot; Three cap finishes</p>
-        </div>
-        <div class="sz-card" data-ml="500" data-name="The Grand" data-detail="500 ml &middot; Borosilicate &middot; Dual-monogram option">
-          <div class="sz-ml">500</div><p class="sz-name">The Grand</p>
-          <p class="sz-desc">For families sharing the back seat, or the long drive from a venue in the hills.</p>
-          <p class="sz-det">500 ml &middot; Borosilicate &middot; Dual-monogram option</p>
-        </div>
-        <div class="sz-card" data-ml="750" data-name="The Prestige" data-detail="750 ml &middot; Hand-blown &middot; Bespoke cap engraving">
-          <div class="sz-ml">750</div><p class="sz-name">The Prestige</p>
-          <p class="sz-desc">Reserved for our most elevated commissions. Presented in its own silk-lined sleeve.</p>
-          <p class="sz-det">750 ml &middot; Hand-blown &middot; Bespoke cap engraving</p>
-        </div>
-        <div class="sz-card" data-ml="inf" data-name="The Atelier" data-detail="Fully bespoke &middot; Timeline: 6&ndash;8 weeks">
-          <div class="sz-badge">Custom</div>
-          <div class="sz-ml">&#8734;</div><p class="sz-name">The Atelier</p>
-          <p class="sz-desc">Tell us your vision — the size, the shape, the story. We make what has never been made.</p>
-          <p class="sz-det">Fully bespoke &middot; Timeline: 6&ndash;8 weeks</p>
-        </div>
-      </div>
+      <div class="sz-cards-inner" id="sz-cards-inner"></div>
     </div>
 
     <!-- Visualizer panel (sticky) -->
     <div class="sz-vis-panel" id="sz-vis-panel">
       <div class="sz-vis-header">
-        <span class="sz-vis-name" id="sv-name">The ClassiPc</span>
-        <span class="sz-vis-ml" id="sv-ml">330 ml</span>
+        <span class="sz-vis-name" id="sv-name">The Heritage</span>
+        <span class="sz-vis-ml" id="sv-ml">The Classic · 330 ml</span>
       </div>
 
       <div class="sz-bottle-wrap">
@@ -769,28 +787,28 @@ footer{padding:clamp(48px,8vw,72px) clamp(20px,5vw,64px) clamp(28px,5vw,44px);}
               <stop offset="100%" stop-color="#7A5510" stop-opacity="0.9"/>
             </linearGradient>
             <clipPath id="svCl">
-              <path d="M42,80 Q34,88 33,98 L32,114 L32,374 Q32,382 38,384 L82,384 Q88,382 88,374 L88,114 L87,98 Q86,88 78,80 Z"/>
+              <path id="sv-clip" d="M42,80 Q34,88 33,98 L32,114 L32,374 Q32,382 38,384 L82,384 Q88,382 88,374 L88,114 L87,98 Q86,88 78,80 Z"/>
             </clipPath>
             <radialGradient id="svFl" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stop-color="#C9A84C" stop-opacity="0.18"/>
               <stop offset="100%" stop-color="#C9A84C" stop-opacity="0"/>
             </radialGradient>
           </defs>
-          <ellipse cx="60" cy="390" rx="44" ry="7" fill="url(#svFl)"/>
+          <ellipse id="sv-floor" cx="60" cy="390" rx="32" ry="7" fill="url(#svFl)"/>
           <rect id="sv-water" x="32" y="200" width="56" height="186" fill="url(#svW)" clip-path="url(#svCl)"/>
           <ellipse id="sv-wsurf" cx="60" cy="200" rx="24" ry="3.5" fill="rgba(210,245,255,0.25)"/>
-          <path d="M42,80 Q34,88 33,98 L32,114 L32,374 Q32,382 38,384 L82,384 Q88,382 88,374 L88,114 L87,98 Q86,88 78,80 Z"
+          <path id="sv-outline" d="M42,80 Q34,88 33,98 L32,114 L32,374 Q32,382 38,384 L82,384 Q88,382 88,374 L88,114 L87,98 Q86,88 78,80 Z"
             fill="url(#svG)" stroke="rgba(201,168,76,0.45)" stroke-width="1"/>
-          <line x1="33" y1="118" x2="33" y2="370" stroke="rgba(255,248,218,0.35)" stroke-width="2.2"/>
-          <line x1="87" y1="118" x2="87" y2="370" stroke="rgba(255,248,218,0.28)" stroke-width="2.2"/>
-          <path d="M37,118 Q60,112 83,118" fill="none" stroke="rgba(255,252,236,0.14)" stroke-width="1.2"/>
+          <line id="sv-edge-l" x1="33" y1="118" x2="33" y2="370" stroke="rgba(255,248,218,0.35)" stroke-width="2.2"/>
+          <line id="sv-edge-r" x1="87" y1="118" x2="87" y2="370" stroke="rgba(255,248,218,0.28)" stroke-width="2.2"/>
+          <path id="sv-shoulder" d="M37,118 Q60,112 83,118" fill="none" stroke="rgba(255,252,236,0.14)" stroke-width="1.2"/>
           <rect x="46" y="36" width="28" height="46" fill="rgba(255,250,228,0.06)" stroke="rgba(201,168,76,0.28)" stroke-width="0.7"/>
           <line x1="44" y1="78" x2="76" y2="78" stroke="rgba(201,168,76,0.45)" stroke-width="1.5"/>
-          <ellipse cx="60" cy="260" rx="22" ry="28" fill="none" stroke="rgba(201,168,76,0.42)" stroke-width="0.7"/>
-          <text x="60" y="265" text-anchor="middle" dominant-baseline="middle"
+          <ellipse id="sv-ring" cx="60" cy="260" rx="22" ry="28" fill="none" stroke="rgba(201,168,76,0.42)" stroke-width="0.7"/>
+          <text id="sv-eng-text" x="60" y="265" text-anchor="middle" dominant-baseline="middle"
             font-family="'Cormorant Garamond',Georgia,serif" font-size="18" font-weight="300" font-style="italic"
             fill="rgba(201,168,76,0.85)">R&amp;S</text>
-          <text x="60" y="282" text-anchor="middle" dominant-baseline="middle"
+          <text id="sv-eng-sub" x="60" y="282" text-anchor="middle" dominant-baseline="middle"
             font-family="'Montserrat',sans-serif" font-size="4.5" font-weight="200" letter-spacing="2"
             fill="rgba(201,168,76,0.55)">14 &middot; II &middot; 2026</text>
           <ellipse cx="60" cy="384" rx="26" ry="5" fill="rgba(201,168,76,0.04)" stroke="rgba(201,168,76,0.18)" stroke-width="0.8"/>
@@ -822,8 +840,8 @@ footer{padding:clamp(48px,8vw,72px) clamp(20px,5vw,64px) clamp(28px,5vw,44px);}
         </div>
       </div>
 
-      <p class="sz-vis-detail" id="sv-det">330 ml &middot; Borosilicate &middot; Three cap finishes</p>
-      <a href="#bespoke" class="sv-cta">Commission This Size &#8594;</a>
+      <p class="sz-vis-detail" id="sv-det">330 ml &middot; Borosilicate &middot; The Heritage</p>
+      <a href="#bespoke" class="sv-cta">Commission This Bottle &#8594;</a>
     </div>
   </div>
 </section>

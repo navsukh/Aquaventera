@@ -83,66 +83,224 @@ document.querySelectorAll('.rv').forEach(function(el){rvIO.observe(el);});
 // after the enquiry-form helpers, alongside the CSP event bindings.
 let currentTab = 'initials';
 
-// ── SIZE VISUALIZER — FIXED ───────────────────────────────
-var SZ={
+// ── THE COLLECTION — 5 silhouettes, each with its own dimensions ──
+var MODELS = [
+  { id:'heritage',  name:'The Heritage',  tag:'The original silhouette — soft, rounded, and iconic.', badge:'Most Loved' },
+  { id:'sovereign', name:'The Sovereign', tag:'A full-bodied decanter, wide and generous — presence for grand tables.', badge:'Grand Format' },
+  { id:'aria',      name:'The Aria',      tag:'A slender teardrop, faceted and light — quietly elegant.', badge:null },
+  { id:'palazzo',   name:'The Palazzo',   tag:'Tall and graceful, inspired by fine hospitality glassware.', badge:null },
+  { id:'meridian',  name:'The Meridian',  tag:'Clean, architectural, and minimal — a modern conical form.', badge:'New' }
+];
+var MODELS_BY_ID = {};
+MODELS.forEach(function(m){ MODELS_BY_ID[m.id] = m; });
+
+// Which sizes each silhouette is offered in — not every shape suits every size.
+var MODEL_SIZES = {
+  heritage:  ['250','330','500','750'],
+  sovereign: ['330','500','750'],
+  aria:      ['250','330','500'],
+  palazzo:   ['330','500','750'],
+  meridian:  ['250','330','500']
+};
+
+// Universal size tier names/descriptions, shared across every model.
+var SIZE_META = {
+  '250': { name:'The Petite',  desc:'A jewel-sized vessel for intimate tables and delicate settings.' },
+  '330': { name:'The Classic', desc:'The signature size — the most requested across every silhouette.' },
+  '500': { name:'The Grand',   desc:'For longer tables and longer drives — a fuller presence throughout.' },
+  '750': { name:'The Prestige',desc:'Reserved for the most elevated commissions and grand-format tables.' }
+};
+
+// On-screen scale + comparison figures per ml — shared across all silhouettes.
+var SIZE_DIMS = {
   '250':{w:66, h:195, waterY:270, barW:'35%', mm:'145mm', label:'250 ml'},
   '330':{w:88, h:260, waterY:200, barW:'52%', mm:'185mm', label:'330 ml'},
   '500':{w:100,h:310, waterY:155, barW:'66%', mm:'220mm', label:'500 ml'},
-  '750':{w:112,h:365, waterY:105, barW:'80%', mm:'258mm', label:'758mm'},
-  'inf':{w:120,h:400, waterY:60,  barW:'93%', mm:'Custom',label:'Custom'},
+  '750':{w:112,h:365, waterY:105, barW:'80%', mm:'258mm', label:'750 ml'}
 };
 
-function selectSize(card,ml,detail){
-  document.querySelectorAll('.sz-card').forEach(function(c){c.classList.remove('active-sz');});
-  if(card) card.classList.add('active-sz');
-
-  var d=SZ[ml]||SZ['330'];
-  var nameTxt=card ? (card.getAttribute('data-name') || card.querySelector('.sz-name').textContent) : 'The Classic';
-  var detailTxt=detail || (card ? (card.getAttribute('data-detail') || '') : '');
-
-  document.getElementById('sv-name').textContent=nameTxt;
-  document.getElementById('sv-ml').textContent=d.label;
-  document.getElementById('sv-det').innerHTML=detailTxt;
-  document.getElementById('sv-lbl').textContent=nameTxt;
-  document.getElementById('sv-mm').textContent=d.mm;
-
-  var svg=document.getElementById('sv-svg');
-  if(svg){
-    svg.style.width=d.w+'px';
-    svg.style.height=d.h+'px';
+// Hand-drawn silhouette geometry per model, all sharing the same 0 0 120 420
+// viewBox and the same gold cap, so only the body/neck/engraving zone change.
+var MODEL_SHAPES = {
+  heritage: {
+    body:'M42,80 Q34,88 33,98 L32,114 L32,374 Q32,382 38,384 L82,384 Q88,382 88,374 L88,114 L87,98 Q86,88 78,80 Z',
+    shoulder:'M37,118 Q60,112 83,118',
+    edges:{x1:33,x2:87,y1:118,y2:370},
+    ring:{cx:60,cy:260,rx:22,ry:28},
+    floorRx:32
+  },
+  sovereign: {
+    body:'M50,68 Q35,80 30,102 Q25,145 25,230 Q25,318 31,354 Q36,378 50,384 L70,384 Q84,378 89,354 Q95,318 95,230 Q95,145 90,102 Q85,80 70,68 Q60,62 50,68 Z',
+    shoulder:'M30,140 Q60,132 90,140',
+    edges:{x1:27,x2:93,y1:140,y2:356},
+    ring:{cx:60,cy:250,rx:28,ry:34},
+    floorRx:36
+  },
+  aria: {
+    body:'M34,96 Q26,112 28,132 L30,150 Q30,172 40,194 Q50,224 50,262 Q50,300 46,332 Q42,360 45,378 Q48,384 60,384 Q72,384 75,378 Q78,360 74,332 Q70,300 70,262 Q70,224 80,194 Q90,172 90,150 L92,132 Q94,112 86,96 Q78,80 60,80 Q42,80 34,96 Z',
+    shoulder:'M30,108 Q60,102 90,108',
+    edges:{x1:29,x2:91,y1:108,y2:376},
+    ring:{cx:60,cy:230,rx:18,ry:22},
+    floorRx:22
+  },
+  palazzo: {
+    body:'M46,56 Q37,64 35,82 Q33,110 33,162 Q33,262 35,322 Q37,368 44,382 Q48,384 60,384 Q72,384 76,382 Q83,368 85,322 Q87,262 87,162 Q87,110 85,82 Q83,64 74,56 Q67,50 60,50 Q53,50 46,56 Z',
+    shoulder:'M35,94 Q60,88 85,94',
+    edges:{x1:34,x2:86,y1:94,y2:378},
+    ring:{cx:60,cy:245,rx:19,ry:30},
+    floorRx:30
+  },
+  meridian: {
+    body:'M34,110 L30,368 Q30,382 39,384 L81,384 Q90,382 90,368 L86,110 Q84,90 74,80 L46,80 Q36,90 34,110 Z',
+    shoulder:'M32,120 Q60,114 88,120',
+    edges:{x1:31,x2:89,y1:120,y2:366},
+    ring:{cx:60,cy:255,rx:26,ry:26},
+    floorRx:34
   }
+};
 
-  var water=document.getElementById('sv-water');
-  var wsurf=document.getElementById('sv-wsurf');
-  if(water){ water.setAttribute('y',d.waterY); water.setAttribute('height',384-d.waterY); }
-  if(wsurf){ wsurf.setAttribute('cy',d.waterY); }
+var activeModel = 'heritage';
+var activeSize = '330';
 
-  var bar=document.getElementById('sv-bar');
-  if(bar){ bar.style.width=d.barW; }
+// Simplified silhouette used for the collection-grid thumbnails — same path
+// data as the configurator so the shape a person picks is the shape they get.
+function thumbSVG(shape){
+  return '<svg viewBox="0 0 120 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;overflow:visible;">'
+    + '<path d="' + shape.body + '" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.55)" stroke-width="2"/>'
+    + '<rect x="44" y="10" width="32" height="28" rx="1.5" fill="rgba(201,168,76,0.35)" stroke="rgba(248,222,140,0.4)" stroke-width="1"/>'
+    + '<ellipse cx="60" cy="10" rx="16" ry="5" fill="rgba(201,168,76,0.3)"/>'
+    + '</svg>';
+}
 
-  var formSel=document.getElementById('f-size');
-  if(formSel){
-    var opts=formSel.options;
-    for(var i=0;i<opts.length;i++){
-      if(opts[i].text.includes(d.label.split(' ')[0]+' ml')||opts[i].text.toLowerCase().includes(nameTxt.toLowerCase())){
-        formSel.selectedIndex=i;break;
-      }
+function renderModelThumbs(){
+  MODELS.forEach(function(m){
+    var el = document.querySelector('.model-thumb[data-thumb="' + m.id + '"]');
+    if (el && MODEL_SHAPES[m.id]) el.innerHTML = thumbSVG(MODEL_SHAPES[m.id]);
+  });
+}
+
+// Swaps the configurator's body/neck/engraving-zone geometry to match the model.
+function applyModelShape(modelId){
+  var s = MODEL_SHAPES[modelId];
+  if (!s) return;
+
+  var outline = document.getElementById('sv-outline');
+  var clip = document.getElementById('sv-clip');
+  var shoulder = document.getElementById('sv-shoulder');
+  var edgeL = document.getElementById('sv-edge-l');
+  var edgeR = document.getElementById('sv-edge-r');
+  var ring = document.getElementById('sv-ring');
+  var engText = document.getElementById('sv-eng-text');
+  var engSub = document.getElementById('sv-eng-sub');
+  var floor = document.getElementById('sv-floor');
+
+  if (outline) outline.setAttribute('d', s.body);
+  if (clip) clip.setAttribute('d', s.body);
+  if (shoulder) shoulder.setAttribute('d', s.shoulder);
+  if (edgeL) { edgeL.setAttribute('x1', s.edges.x1); edgeL.setAttribute('x2', s.edges.x1); edgeL.setAttribute('y1', s.edges.y1); edgeL.setAttribute('y2', s.edges.y2); }
+  if (edgeR) { edgeR.setAttribute('x1', s.edges.x2); edgeR.setAttribute('x2', s.edges.x2); edgeR.setAttribute('y1', s.edges.y1); edgeR.setAttribute('y2', s.edges.y2); }
+  if (ring) { ring.setAttribute('cx', s.ring.cx); ring.setAttribute('cy', s.ring.cy); ring.setAttribute('rx', s.ring.rx); ring.setAttribute('ry', s.ring.ry); }
+  if (engText) engText.setAttribute('y', s.ring.cy + 5);
+  if (engSub) engSub.setAttribute('y', s.ring.cy + 22);
+  if (floor) floor.setAttribute('rx', s.floorRx);
+}
+
+// Renders the size-card row for whichever model is active.
+function renderSizeCards(modelId){
+  var wrap = document.getElementById('sz-cards-inner');
+  if (!wrap) return;
+  var avail = MODEL_SIZES[modelId] || [];
+  var model = MODELS_BY_ID[modelId];
+
+  wrap.innerHTML = avail.map(function(ml){
+    var meta = SIZE_META[ml];
+    var badgeHtml = (model && model.badge && ml === (avail[1] || avail[0])) ? '<div class="sz-badge">' + model.badge + '</div>' : '';
+    return '<div class="sz-card' + (ml === activeSize ? ' active-sz' : '') + '" data-ml="' + ml + '">'
+      + badgeHtml
+      + '<div class="sz-ml">' + ml + '</div><p class="sz-name">' + meta.name + '</p>'
+      + '<p class="sz-desc">' + meta.desc + '</p>'
+      + '<p class="sz-det">' + ml + ' ml &middot; Borosilicate &middot; ' + (model ? model.name : '') + '</p>'
+      + '</div>';
+  }).join('');
+
+  wrap.querySelectorAll('.sz-card').forEach(function(card){
+    card.addEventListener('click', function(){ selectSize(card.getAttribute('data-ml')); });
+  });
+}
+
+// Updates the configurator (visualizer panel) for the active model + size.
+function selectSize(ml){
+  var avail = MODEL_SIZES[activeModel] || [];
+  if (avail.indexOf(ml) === -1) ml = avail[0];
+  activeSize = ml;
+
+  document.querySelectorAll('#sz-cards-inner .sz-card').forEach(function(c){
+    c.classList.toggle('active-sz', c.getAttribute('data-ml') === ml);
+  });
+
+  var d = SIZE_DIMS[ml] || SIZE_DIMS['330'];
+  var model = MODELS_BY_ID[activeModel];
+  var meta = SIZE_META[ml];
+
+  var svName = document.getElementById('sv-name');
+  var svMl = document.getElementById('sv-ml');
+  var svDet = document.getElementById('sv-det');
+  var svLbl = document.getElementById('sv-lbl');
+  var svMm = document.getElementById('sv-mm');
+  if (svName) svName.textContent = model ? model.name : '';
+  if (svMl) svMl.textContent = meta.name + ' · ' + d.label;
+  if (svDet) svDet.innerHTML = d.label + ' &middot; Borosilicate &middot; ' + (model ? model.name : '');
+  if (svLbl) svLbl.textContent = model ? model.name : 'This bottle';
+  if (svMm) svMm.textContent = d.mm;
+
+  var svg = document.getElementById('sv-svg');
+  if (svg) { svg.style.width = d.w + 'px'; svg.style.height = d.h + 'px'; }
+
+  var water = document.getElementById('sv-water');
+  var wsurf = document.getElementById('sv-wsurf');
+  if (water) { water.setAttribute('y', d.waterY); water.setAttribute('height', Math.max(0, 384 - d.waterY)); }
+  if (wsurf) wsurf.setAttribute('cy', d.waterY);
+
+  var bar = document.getElementById('sv-bar');
+  if (bar) bar.style.width = d.barW;
+
+  applyModelShape(activeModel);
+
+  var formSel = document.getElementById('f-size');
+  if (formSel) {
+    var opts = formSel.options;
+    for (var i = 0; i < opts.length; i++) {
+      if (opts[i].text.indexOf(d.label.split(' ')[0] + ' ml') !== -1) { formSel.selectedIndex = i; break; }
     }
   }
 }
 
-function bindSizeCards(){
-  document.querySelectorAll('.sz-card').forEach(function(card){
-    card.addEventListener('click', function(){
-      var ml=card.getAttribute('data-ml')||'330';
-      var name=card.getAttribute('data-name')||'';
-      var detail=card.getAttribute('data-detail')||'';
-      selectSize(card, ml, detail, name);
-    });
+// Switches the active silhouette, re-renders its size options, and keeps the
+// current size if that silhouette still offers it (otherwise falls back).
+function selectModel(id){
+  if (!MODELS_BY_ID[id]) return;
+  activeModel = id;
+
+  document.querySelectorAll('.model-card').forEach(function(c){
+    var on = c.getAttribute('data-model') === id;
+    c.classList.toggle('active-model', on);
+    c.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+
+  renderSizeCards(id);
+  var avail = MODEL_SIZES[id] || [];
+  selectSize(avail.indexOf(activeSize) !== -1 ? activeSize : avail[0]);
+}
+
+function bindModelCards(){
+  document.querySelectorAll('.model-card').forEach(function(card){
+    card.addEventListener('click', function(){ selectModel(card.getAttribute('data-model')); });
   });
 }
 
-bindSizeCards();
+renderModelThumbs();
+bindModelCards();
+selectModel('heritage');
 bindEnquiryFieldValidation();
 
 // ── FORM SUBMISSION — FIXED ───────────────────────────────
@@ -569,11 +727,8 @@ function tick(){
 } // End of tick()
 tick();
 
-// ── SIZE VISUALIZER INIT ──────────────────────────────────
-(function(){
-  var card=document.querySelector('.sz-card.active-sz');
-  if(card) selectSize(card,'330','330 ml &middot; Borosilicate &middot; Three cap finishes');
-})();
+// Collection init (model + size selection) now happens where MODELS is
+// defined, right after bindEnquiryFieldValidation() is set up.
 
 
 function parseDateInput(value) {
