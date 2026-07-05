@@ -120,145 +120,115 @@ var SIZE_DIMS = {
 };
 
 // Hand-drawn silhouette geometry per model, all sharing the same 0 0 120 420
-// viewBox and the same gold cap, so only the body/neck/engraving zone change.
+// viewBox. Each is built as its own vector identity — a different house's
+// interpretation of "bottle" — not one curve wearing different widths.
+// Left/right symmetry about x=60 is exact (verified programmatically).
 var MODEL_SHAPES = {
+  // The quiet classic — kept close to its original form, barely touched.
+  // A soft apothecary curve with the faintest belly and a generous heel.
   heritage: {
-    body:'M42,80 Q34,88 33,98 L32,114 L32,374 Q32,382 38,384 L82,384 Q88,382 88,374 L88,114 L87,98 Q86,88 78,80 Z',
-    shoulder:'M37,118 Q60,112 83,118',
-    edges:{x1:33,x2:87,y1:118,y2:370},
-    ring:{cx:60,cy:260,rx:22,ry:28},
-    floorRx:32
-  },
-  // A true decanter — round, full belly, defined shoulder, stable heel.
-  sovereign: {
-    body:'M60,66 Q40,68 34,88 Q24,120 23,180 Q22,232 28,272 Q33,312 37,338 Q41,366 48,382 Q53,384 60,384 Q67,384 72,382 Q79,366 83,338 Q87,312 92,272 Q98,232 97,180 Q96,120 86,88 Q80,68 60,66 Z',
-    shoulder:'M28,110 Q60,100 92,110',
-    edges:{x1:25,x2:95,y1:140,y2:330},
-    ring:{cx:60,cy:230,rx:30,ry:36},
+    body:'M44,80 Q30,90 28,108 Q26,130 27,150 L27,340 Q27,368 33,378 Q40,386 60,386 Q80,386 87,378 Q93,368 93,340 L93,150 Q94,130 92,108 Q90,90 76,80 Z',
+    shoulder:'M32,116 Q60,106 88,116',
+    edges:{x1:27,x2:93,y1:150,y2:338},
+    ring:{cx:60,cy:250,rx:26,ry:36},
     floorRx:34
   },
-  // A teardrop — round bulb up top, drawn down into a slender, elongated base.
+  // A true crystal decanter — short aristocratic neck, a generous round
+  // belly (the widest silhouette in the collection by far), drawn down to
+  // a small precise foot. Built to look heavy on a whisky tray.
+  sovereign: {
+    body:'M60,70 Q42,72 33,92 Q18,116 14,155 Q11,195 14,232 Q18,270 30,302 Q38,326 42,346 Q45,362 46,374 Q47,382 60,384 Q73,382 74,374 Q75,362 78,346 Q82,326 90,302 Q102,270 106,232 Q109,195 106,155 Q102,116 87,92 Q78,72 60,70 Z',
+    shoulder:'M33,108 Q60,94 87,108',
+    edges:{x1:14,x2:106,y1:155,y2:346},
+    ring:{cx:60,cy:205,rx:36,ry:50},
+    floorRx:42
+  },
+  // A faceted teardrop, cut like a gemstone — the upper bulb is a genuine
+  // angular polygon (straight edges only), not a curve with lines drawn
+  // over it. Drawn down into a long, slender, jewel-like base.
   aria: {
-    body:'M60,80 Q40,82 32,100 Q24,120 24,152 Q24,180 34,200 Q46,222 50,254 Q54,286 52,318 Q50,348 47,368 Q45,382 52,384 Q56,385 60,385 Q64,385 68,384 Q75,382 73,368 Q70,348 68,318 Q66,286 70,254 Q74,222 86,200 Q96,180 96,152 Q96,120 88,100 Q80,82 60,80 Z',
-    shoulder:'M28,100 Q60,92 92,100',
-    edges:{x1:48,x2:72,y1:140,y2:370},
-    ring:{cx:60,cy:150,rx:22,ry:26},
+    body:'M60,84 L46,92 L36,110 L30,134 L28,160 L34,190 L42,220 L46,254 L47,290 L45,322 L42,350 L45,372 L52,384 L60,386 L68,384 L75,372 L78,350 L75,322 L73,290 L74,254 L78,220 L86,190 L92,160 L90,134 L84,110 L74,92 Z',
+    shoulder:'M36,102 L60,92 L84,102',
+    edges:{x1:28,x2:92,y1:160,y2:372},
+    ring:{cx:60,cy:140,rx:24,ry:30},
     floorRx:22
   },
-  // Tall and slender — a long neck, a gentle taper, hospitality-glass proportions.
+  // A tall hospitality flute with a genuine waist — the outline actually
+  // pinches in at the collar before flaring back out into the body, the
+  // way a hand-blown stemmed glass narrows at the hand.
   palazzo: {
-    body:'M60,50 Q50,52 46,64 Q40,84 39,120 Q38,180 38,250 Q38,320 40,360 Q42,378 48,384 Q54,386 60,386 Q66,386 72,384 Q78,378 80,360 Q82,320 82,250 Q82,180 82,120 Q81,84 74,64 Q70,52 60,50 Z',
-    shoulder:'M42,80 Q60,74 78,80',
-    edges:{x1:39,x2:81,y1:100,y2:370},
-    ring:{cx:60,cy:230,rx:20,ry:42},
+    body:'M46,64 Q40,78 40,92 Q40,106 48,128 Q54,142 46,158 Q40,178 40,220 Q40,280 40,320 Q41,352 44,364 Q46,378 50,383 Q55,386 60,386 Q65,386 70,383 Q74,378 76,364 Q79,352 80,320 Q80,280 80,220 Q80,178 74,158 Q66,142 72,128 Q80,106 80,92 Q80,78 74,64 Z',
+    shoulder:'M40,92 Q60,84 80,92',
+    edges:{x1:40,x2:80,y1:178,y2:364},
+    ring:{cx:60,cy:240,rx:18,ry:48},
     floorRx:24
   },
-  // A cone — straight architectural edges, wide flat base, minimal curvature.
+  // Fully architectural — every edge a straight line, no curves anywhere.
+  // A chamfered, stepped silhouette, cold and geometric, like sculpture.
   meridian: {
-    body:'M36,110 L30,368 Q30,382 40,384 L80,384 Q90,382 90,368 L84,110 Q82,86 68,80 L52,80 Q38,86 36,110 Z',
-    shoulder:'M34,118 L86,118',
-    edges:{x1:33,x2:87,y1:120,y2:366},
-    ring:{cx:60,cy:250,rx:27,ry:27},
-    floorRx:34
+    body:'M44,80 L36,100 L32,120 L32,360 L38,380 L44,384 L76,384 L82,380 L88,360 L88,120 L84,100 L76,80 Z',
+    shoulder:'M32,120 L88,120',
+    edges:{x1:32,x2:88,y1:120,y2:360},
+    ring:{cx:60,cy:240,rx:26,ry:30},
+    floorRx:30
   }
 };
 
-// Large-scale (0 0 240 520) versions of the same silhouettes for the story
-// section's pinned scroll bottle. Heritage keeps its original hand-tuned
-// artwork; the other four are the exact proportional scale-up of
-// MODEL_SHAPES above, so the story bottle is never a different shape than
-// the one shown in the collection configurator.
-var STORY_SHAPES = {
-  heritage: {
-    body:'M88,100 Q75,112 73,128 L70,148 L70,448 Q70,462 80,466 L160,466 Q170,462 170,448 L170,148 L167,128 Q165,112 152,100 Z',
-    shoulder:'M80,152 Q120,144 160,152',
-    edges:{x1:71.5,x2:168.5,y1:152,y2:444},
-    ring:{cx:120,cy:300,rx:40,ry:50},
-    floorRx:38
-  },
-  sovereign: {
-    body:'M120,83.14 Q84.29,85.55,73.57,109.63 Q55.71,148.16,53.93,220.39 Q52.14,283,62.86,331.16 Q71.79,379.32,78.93,410.62 Q86.07,444.33,98.57,463.59 Q107.5,466,120,466 Q132.5,466,141.43,463.59 Q153.93,444.33,161.07,410.62 Q168.21,379.32,177.14,331.16 Q187.86,283,186.07,220.39 Q184.29,148.16,166.43,109.63 Q155.71,85.55,120,83.14 Z',
-    shoulder:'M62.86,136.12 Q120,124.08,177.14,136.12',
-    edges:{x1:57.5,x2:182.5,y1:172.24,y2:400.99},
-    ring:{cx:120,cy:280.59,rx:53.57,ry:43.34},
-    floorRx:46
-  },
-  aria: {
-    body:'M120,100 Q84.29,102.41,70,124.08 Q55.71,148.16,55.71,186.68 Q55.71,220.39,73.57,244.47 Q95,270.96,102.14,309.49 Q109.29,348.01,105.71,386.54 Q102.14,422.66,96.79,446.74 Q93.21,463.59,105.71,466 Q112.86,467.2,120,467.2 Q127.14,467.2,134.29,466 Q146.79,463.59,143.21,446.74 Q137.86,422.66,134.29,386.54 Q130.71,348.01,137.86,309.49 Q145,270.96,166.43,244.47 Q184.29,220.39,184.29,186.68 Q184.29,148.16,170,124.08 Q155.71,102.41,120,100 Z',
-    shoulder:'M62.86,124.08 Q120,114.45,177.14,124.08',
-    edges:{x1:98.57,x2:141.43,y1:172.24,y2:449.14},
-    ring:{cx:120,cy:184.28,rx:39.29,ry:31.3},
-    floorRx:30
-  },
-  palazzo: {
-    body:'M120,63.88 Q102.14,66.29,95,80.74 Q84.29,104.82,82.5,148.16 Q80.71,220.39,80.71,304.67 Q80.71,388.95,84.29,437.11 Q87.86,458.78,98.57,466 Q109.29,468.41,120,468.41 Q130.71,468.41,141.43,466 Q152.14,458.78,155.71,437.11 Q159.29,388.95,159.29,304.67 Q159.29,220.39,159.29,148.16 Q157.5,104.82,145,80.74 Q137.86,66.29,120,63.88 Z',
-    shoulder:'M87.86,100 Q120,92.78,152.14,100',
-    edges:{x1:82.5,x2:157.5,y1:124.08,y2:449.14},
-    ring:{cx:120,cy:280.59,rx:35.71,ry:50.57},
-    floorRx:34
-  },
-  meridian: {
-    body:'M77.14,136.12 L66.43,446.74 Q66.43,463.59,84.29,466 L155.71,466 Q173.57,463.59,173.57,446.74 L162.86,136.12 Q159.29,107.22,134.29,100 L105.71,100 Q80.71,107.22,77.14,136.12 Z',
-    shoulder:'M73.57,145.75 L166.43,145.75',
-    edges:{x1:71.79,x2:168.21,y1:148.16,y2:444.33},
-    ring:{cx:120,cy:304.67,rx:48.21,ry:32.51},
-    floorRx:44
-  }
-};
+// ── Deriving the story-section's large-scale geometry ──────────────────
+// Rather than hand-duplicating every curve at a second scale (error-prone,
+// and the two versions drift apart over time), the pinned scroll section's
+// bottle is generated from the exact same MODEL_SHAPES data via a plain
+// affine transform. Same silhouette, guaranteed, at both scales.
+function roundTo(n, places){
+  var f = Math.pow(10, places || 2);
+  return Math.round(n * f) / f;
+}
+function transformPathD(d, sx, sy, ox, oy){
+  return d.replace(/([MLQCZ])([^MLQCZ]*)/g, function(_, cmd, nums){
+    if (cmd === 'Z') return 'Z';
+    var trimmed = nums.trim();
+    if (!trimmed) return cmd;
+    var parts = trimmed.split(/[\s,]+/).map(Number);
+    var out = [];
+    for (var i = 0; i < parts.length; i += 2) {
+      out.push(roundTo(parts[i] * sx + ox, 2) + ',' + roundTo(parts[i + 1] * sy + oy, 2));
+    }
+    return cmd + out.join(' ');
+  });
+}
+function transformShape(shape, sx, sy, ox, oy){
+  return {
+    body: transformPathD(shape.body, sx, sy, ox, oy),
+    shoulder: transformPathD(shape.shoulder, sx, sy, ox, oy),
+    edges: {
+      x1: roundTo(shape.edges.x1 * sx + ox, 2), x2: roundTo(shape.edges.x2 * sx + ox, 2),
+      y1: roundTo(shape.edges.y1 * sy + oy, 2), y2: roundTo(shape.edges.y2 * sy + oy, 2)
+    },
+    ring: {
+      cx: roundTo(shape.ring.cx * sx + ox, 2), cy: roundTo(shape.ring.cy * sy + oy, 2),
+      rx: roundTo(shape.ring.rx * sx, 2), ry: roundTo(shape.ring.ry * sy, 2)
+    },
+    floorRx: roundTo(shape.floorRx * sx, 2)
+  };
+}
+
+// Story canvas is 0 0 240 520 — 2× the width of the 0 0 120 420 gallery
+// canvas, with a vertical scale/offset chosen so every silhouette's
+// shoulder and heel land inside the section's existing fixed decoration
+// (label plaque, dashed lines, floor plate) without needing to touch it.
+var STORY_SCALE_X = 2;
+var STORY_SCALE_Y = (466 - 100) / (386 - 80);
+var STORY_OFFSET_X = 0;
+var STORY_OFFSET_Y = 100 - 80 * STORY_SCALE_Y;
+
+var STORY_SHAPES = {};
+Object.keys(MODEL_SHAPES).forEach(function(id){
+  STORY_SHAPES[id] = transformShape(MODEL_SHAPES[id], STORY_SCALE_X, STORY_SCALE_Y, STORY_OFFSET_X, STORY_OFFSET_Y);
+});
 
 var activeModel = 'heritage';
 var activeSize = '330';
-
-// Simplified silhouette used for the collection-grid thumbnails — same path
-// data as the configurator so the shape a person picks is the shape they get.
-function thumbSVG(shape){
-  return '<svg viewBox="0 0 120 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;overflow:visible;">'
-    + '<path d="' + shape.body + '" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.55)" stroke-width="2"/>'
-    + '<rect x="44" y="10" width="32" height="28" rx="1.5" fill="rgba(201,168,76,0.35)" stroke="rgba(248,222,140,0.4)" stroke-width="1"/>'
-    + '<ellipse cx="60" cy="10" rx="16" ry="5" fill="rgba(201,168,76,0.3)"/>'
-    + '</svg>';
-}
-
-function renderModelThumbs(){
-  MODELS.forEach(function(m){
-    var el = document.querySelector('.model-thumb[data-thumb="' + m.id + '"]');
-    if (el && MODEL_SHAPES[m.id]) el.innerHTML = thumbSVG(MODEL_SHAPES[m.id]);
-  });
-}
-
 var ALL_MODEL_IDS = MODELS.map(function(m){ return m.id; });
-
-// Swaps the configurator's body/neck/engraving-zone geometry to match the model.
-function applyModelShape(modelId){
-  var s = MODEL_SHAPES[modelId];
-  if (!s) return;
-
-  var outline = document.getElementById('sv-outline');
-  var clip = document.getElementById('sv-clip');
-  var shoulder = document.getElementById('sv-shoulder');
-  var edgeL = document.getElementById('sv-edge-l');
-  var edgeR = document.getElementById('sv-edge-r');
-  var ring = document.getElementById('sv-ring');
-  var engText = document.getElementById('sv-eng-text');
-  var engSub = document.getElementById('sv-eng-sub');
-  var floor = document.getElementById('sv-floor');
-  var svg = document.getElementById('sv-svg');
-
-  if (outline) outline.setAttribute('d', s.body);
-  if (clip) clip.setAttribute('d', s.body);
-  if (shoulder) shoulder.setAttribute('d', s.shoulder);
-  if (edgeL) { edgeL.setAttribute('x1', s.edges.x1); edgeL.setAttribute('x2', s.edges.x1); edgeL.setAttribute('y1', s.edges.y1); edgeL.setAttribute('y2', s.edges.y2); }
-  if (edgeR) { edgeR.setAttribute('x1', s.edges.x2); edgeR.setAttribute('x2', s.edges.x2); edgeR.setAttribute('y1', s.edges.y1); edgeR.setAttribute('y2', s.edges.y2); }
-  if (ring) { ring.setAttribute('cx', s.ring.cx); ring.setAttribute('cy', s.ring.cy); ring.setAttribute('rx', s.ring.rx); ring.setAttribute('ry', s.ring.ry); }
-  if (engText) engText.setAttribute('y', s.ring.cy + 5);
-  if (engSub) engSub.setAttribute('y', s.ring.cy + 22);
-  if (floor) floor.setAttribute('rx', s.floorRx);
-
-  if (svg) {
-    ALL_MODEL_IDS.forEach(function(id){ svg.classList.remove('model-' + id); });
-    svg.classList.add('model-' + modelId);
-  }
-}
 
 // Swaps the story section's (pinned scroll) bottle to the same silhouette —
 // clicking any model in the Collection updates both the configurator and
@@ -296,66 +266,329 @@ function applyStoryShape(modelId){
   }
 }
 
-// Renders the size-card row for whichever model is active.
-function renderSizeCards(modelId){
-  var wrap = document.getElementById('sz-cards-inner');
-  if (!wrap) return;
-  var avail = MODEL_SIZES[modelId] || [];
-  var model = MODELS_BY_ID[modelId];
+// ── THE COLLECTION — 3D Cover Flow gallery ─────────────────
+// A private-gallery presentation of the five silhouettes: one active
+// exhibit centred and in focus, neighbours pushed back along a curved
+// platform, blurred and dimmed. Navigable by arrows, wheel, touch swipe,
+// keyboard, or by clicking a side bottle.
 
-  wrap.innerHTML = avail.map(function(ml){
-    var meta = SIZE_META[ml];
-    var badgeHtml = (model && model.badge && ml === (avail[1] || avail[0])) ? '<div class="sz-badge">' + model.badge + '</div>' : '';
-    return '<div class="sz-card' + (ml === activeSize ? ' active-sz' : '') + '" data-ml="' + ml + '">'
-      + badgeHtml
-      + '<div class="sz-ml">' + ml + '</div><p class="sz-name">' + meta.name + '</p>'
-      + '<p class="sz-desc">' + meta.desc + '</p>'
-      + '<p class="sz-det">' + ml + ' ml &middot; Borosilicate &middot; ' + (model ? model.name : '') + '</p>'
+var galleryIndex = 0;          // index into MODELS of the active exhibit
+var galleryWheelLocked = false;
+
+// Builds one bottle's SVG markup. Every instance gets its own gradient/
+// clip ids (uid) since several sit in the DOM together.
+function diamondAccent(cx, cy){
+  return '<rect x="' + (cx - 2.6) + '" y="' + (cy - 2.6) + '" width="5.2" height="5.2" transform="rotate(45,' + cx + ',' + cy + ')" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="0.5"/>';
+}
+
+// ── Bespoke caps — each model gets its own closure fully designed
+// alongside its body, not one generic cap swapped between silhouettes.
+
+// Heritage: the familiar fluted metal cap — collar, barrel, domed crown.
+function capHeritage(cId, ctId){
+  return ''
+    + '<ellipse cx="60" cy="41" rx="17" ry="4" fill="rgba(90,58,8,0.55)" stroke="rgba(201,168,76,0.3)" stroke-width="0.5"/>'
+    + '<rect x="43" y="9" width="34" height="31" rx="2" fill="url(#' + cId + ')" stroke="rgba(248,222,140,0.4)" stroke-width="0.6"/>'
+    + '<line x1="49" y1="9" x2="49" y2="40" stroke="rgba(90,55,6,0.22)" stroke-width="0.5"/>'
+    + '<line x1="55" y1="9" x2="55" y2="40" stroke="rgba(90,55,6,0.22)" stroke-width="0.5"/>'
+    + '<line x1="60" y1="9" x2="60" y2="40" stroke="rgba(90,55,6,0.22)" stroke-width="0.5"/>'
+    + '<line x1="65" y1="9" x2="65" y2="40" stroke="rgba(90,55,6,0.22)" stroke-width="0.5"/>'
+    + '<line x1="71" y1="9" x2="71" y2="40" stroke="rgba(90,55,6,0.22)" stroke-width="0.5"/>'
+    + '<path d="M43,9 Q43,1 60,1 Q77,1 77,9" fill="url(#' + cId + ')" stroke="rgba(255,244,192,0.55)" stroke-width="0.7"/>'
+    + '<ellipse cx="60" cy="9" rx="17" ry="5" fill="url(#' + ctId + ')" stroke="rgba(255,244,192,0.5)" stroke-width="0.6"/>'
+    + '<ellipse cx="53" cy="5.5" rx="5.5" ry="1.9" fill="rgba(255,252,228,0.42)" transform="rotate(-14,53,5.5)"/>'
+    + '<ellipse cx="60" cy="40" rx="17" ry="4.5" fill="rgba(90,58,8,0.78)" stroke="rgba(201,168,76,0.35)" stroke-width="0.6"/>'
+    + '<text x="60" y="26" text-anchor="middle" dominant-baseline="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="9" font-weight="300" font-style="italic" fill="rgba(6,3,0,0.5)">R&#183;S</text>';
+}
+
+// Sovereign: a true decanter stopper — flared flange, short stem, a heavy
+// round crystal knob cut from the same glass gradient as the body itself.
+function capSovereign(gId){
+  return ''
+    + '<ellipse cx="60" cy="69" rx="21" ry="5" fill="rgba(20,20,10,0.28)"/>'
+    + '<ellipse cx="60" cy="66" rx="19" ry="5.5" fill="url(#' + gId + ')" stroke="rgba(201,168,76,0.4)" stroke-width="0.7"/>'
+    + '<path d="M48,66 Q46,52 48,40 L72,40 Q74,52 72,66 Z" fill="url(#' + gId + ')" stroke="rgba(201,168,76,0.4)" stroke-width="0.7"/>'
+    + '<ellipse cx="60" cy="24" rx="26" ry="24" fill="url(#' + gId + ')" stroke="rgba(201,168,76,0.5)" stroke-width="1"/>'
+    + '<ellipse cx="60" cy="24" rx="26" ry="24" fill="none" stroke="rgba(255,252,236,0.16)" stroke-width="0.6"/>'
+    + '<ellipse cx="50" cy="14" rx="8" ry="10" fill="rgba(255,255,255,0.32)" transform="rotate(-18,50,14)"/>'
+    + '<ellipse cx="72" cy="32" rx="4" ry="6" fill="rgba(255,255,255,0.14)" transform="rotate(20,72,32)"/>'
+    + '<circle cx="60" cy="24" r="3" fill="rgba(120,86,10,0.4)"/>';
+}
+
+// Aria: a faceted crown — straight-edged hexagonal barrel rising into
+// jewel-cut triangular peaks, echoing the body's real angular geometry.
+function capAria(cId){
+  return ''
+    + '<path d="M46,80 L44,60 L48,44 L72,44 L76,60 L74,80 Z" fill="url(#' + cId + ')" stroke="rgba(248,222,140,0.4)" stroke-width="0.6"/>'
+    + '<line x1="52" y1="46" x2="52" y2="78" stroke="rgba(90,55,6,0.2)" stroke-width="0.5"/>'
+    + '<line x1="60" y1="44" x2="60" y2="80" stroke="rgba(90,55,6,0.22)" stroke-width="0.5"/>'
+    + '<line x1="68" y1="46" x2="68" y2="78" stroke="rgba(90,55,6,0.2)" stroke-width="0.5"/>'
+    + '<path d="M48,44 L54,26 L60,38 L66,26 L72,44 Z" fill="url(#' + cId + ')" stroke="rgba(255,244,192,0.5)" stroke-width="0.6"/>'
+    + '<path d="M54,26 L58,12 L60,20 L62,12 L66,26 L60,38 Z" fill="url(#' + cId + ')" stroke="rgba(255,244,192,0.55)" stroke-width="0.6"/>'
+    + '<path d="M58,12 L60,4 L62,12 Z" fill="url(#' + cId + ')" stroke="rgba(255,248,214,0.6)" stroke-width="0.5"/>'
+    + '<path d="M48,44 L54,26 L60,38 Z" fill="rgba(255,252,228,0.24)"/>'
+    + '<path d="M60,20 L62,12 L66,26 Z" fill="rgba(255,252,228,0.16)"/>'
+    + '<ellipse cx="60" cy="80" rx="15" ry="3.5" fill="rgba(90,58,8,0.7)" stroke="rgba(201,168,76,0.32)" stroke-width="0.5"/>';
+}
+
+// Palazzo: a slim tapered collar — no dome, just a quiet, precise cone of
+// brushed metal, the way a fine hotel's stemware is finished at the rim.
+function capPalazzo(cId){
+  return ''
+    + '<path d="M50,64 Q46,50 48,20 Q49,10 60,9 Q71,10 72,20 Q74,50 70,64 Z" fill="url(#' + cId + ')" stroke="rgba(248,222,140,0.38)" stroke-width="0.6"/>'
+    + '<line x1="54" y1="18" x2="52" y2="60" stroke="rgba(90,55,6,0.18)" stroke-width="0.4"/>'
+    + '<line x1="60" y1="12" x2="60" y2="62" stroke="rgba(90,55,6,0.2)" stroke-width="0.5"/>'
+    + '<line x1="66" y1="18" x2="68" y2="60" stroke="rgba(90,55,6,0.18)" stroke-width="0.4"/>'
+    + '<ellipse cx="60" cy="9" rx="12" ry="3.6" fill="url(#' + cId + ')" stroke="rgba(255,244,192,0.5)" stroke-width="0.6"/>'
+    + '<ellipse cx="56" cy="7" rx="4" ry="1.4" fill="rgba(255,252,228,0.4)" transform="rotate(-10,56,7)"/>'
+    + '<ellipse cx="60" cy="64" rx="15" ry="3.6" fill="rgba(90,58,8,0.72)" stroke="rgba(201,168,76,0.32)" stroke-width="0.5"/>';
+}
+
+// Meridian: a chamfered architectural block — every edge straight, a flat
+// bevelled top face, cold and geometric like machined stone.
+function capMeridian(cId){
+  return ''
+    + '<path d="M42,78 L40,58 L44,40 L76,40 L80,58 L78,78 Z" fill="url(#' + cId + ')" stroke="rgba(248,222,140,0.35)" stroke-width="0.6"/>'
+    + '<path d="M44,40 L50,26 L70,26 L76,40 Z" fill="url(#' + cId + ')" stroke="rgba(248,222,140,0.4)" stroke-width="0.6"/>'
+    + '<path d="M50,26 L54,14 L66,14 L70,26 Z" fill="url(#' + cId + ')" stroke="rgba(255,244,192,0.5)" stroke-width="0.6"/>'
+    + '<rect x="54" y="8" width="12" height="6" fill="url(#' + cId + ')" stroke="rgba(255,248,214,0.55)" stroke-width="0.6"/>'
+    + '<path d="M50,26 L54,14 L60,14 L57,26 Z" fill="rgba(255,252,228,0.18)"/>'
+    + '<line x1="42" y1="58" x2="78" y2="58" stroke="rgba(90,55,6,0.16)" stroke-width="0.5"/>'
+    + '<path d="M40,78 L42,82 L78,82 L80,78 Z" fill="rgba(90,58,8,0.75)" stroke="rgba(201,168,76,0.32)" stroke-width="0.5"/>';
+}
+
+function bottleSVG(modelId, ml, uid){
+  var s = MODEL_SHAPES[modelId];
+  var d = SIZE_DIMS[ml] || SIZE_DIMS['330'];
+  var gId = 'svg-' + uid, wId = 'svw-' + uid, cId = 'svc-' + uid, clId = 'svcl-' + uid, flId = 'svfl-' + uid;
+  var rgId = 'svrg-' + uid, rmId = 'svrm-' + uid, ctId = 'svct-' + uid;
+
+  var ringOuter = s.ring, ringInnerRx = roundTo(s.ring.rx * 0.8, 1), ringInnerRy = roundTo(s.ring.ry * 0.8, 1);
+  var diagOffX = roundTo(s.ring.rx * 0.72, 1), diagOffY = roundTo(s.ring.ry * 0.72, 1);
+
+  var capMarkup = modelId === 'sovereign' ? capSovereign(gId)
+    : modelId === 'aria' ? capAria(cId)
+    : modelId === 'palazzo' ? capPalazzo(cId)
+    : modelId === 'meridian' ? capMeridian(cId)
+    : capHeritage(cId, ctId);
+
+  return ''
+    + '<svg class="sv-svg" viewBox="0 0 120 420" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">'
+    +   '<defs>'
+    // Glass gradient — a genuine two-band highlight: one bright primary
+    // catch-light and a dimmer secondary one, asymmetric, as light off a
+    // single source actually falls across a curved surface (not a
+    // mirrored pair of fake sheens).
+    +     '<linearGradient id="' + gId + '" x1="0%" y1="0%" x2="100%" y2="0%">'
+    +       '<stop offset="0%" stop-color="#C9A84C" stop-opacity="0.11"/>'
+    +       '<stop offset="9%" stop-color="#FFFCF2" stop-opacity="0.4"/>'
+    +       '<stop offset="19%" stop-color="#FFF8E8" stop-opacity="0.05"/>'
+    +       '<stop offset="50%" stop-color="#E8E0D0" stop-opacity="0.018"/>'
+    +       '<stop offset="70%" stop-color="#E8E0D0" stop-opacity="0.02"/>'
+    +       '<stop offset="77%" stop-color="#FFF6E4" stop-opacity="0.2"/>'
+    +       '<stop offset="87%" stop-color="#FFF6E4" stop-opacity="0.04"/>'
+    +       '<stop offset="100%" stop-color="#C9A84C" stop-opacity="0.11"/>'
+    +     '</linearGradient>'
+    +     '<linearGradient id="' + wId + '" x1="0%" y1="0%" x2="0%" y2="100%">'
+    +       '<stop offset="0%" stop-color="#AEE0FA" stop-opacity="0.24"/>'
+    +       '<stop offset="100%" stop-color="#3684D6" stop-opacity="0.26"/>'
+    +     '</linearGradient>'
+    +     '<linearGradient id="' + cId + '" x1="0%" y1="0%" x2="100%" y2="100%">'
+    +       '<stop offset="0%" stop-color="#FFF6C8" stop-opacity="0.98"/>'
+    +       '<stop offset="30%" stop-color="#EFCB6E" stop-opacity="0.97"/>'
+    +       '<stop offset="55%" stop-color="#C9A84C" stop-opacity="0.96"/>'
+    +       '<stop offset="100%" stop-color="#6E4C0C" stop-opacity="0.94"/>'
+    +     '</linearGradient>'
+    +     '<radialGradient id="' + ctId + '" cx="35%" cy="32%" r="68%">'
+    +       '<stop offset="0%" stop-color="#FFFAE0" stop-opacity="0.98"/>'
+    +       '<stop offset="45%" stop-color="#DCAE3A" stop-opacity="0.95"/>'
+    +       '<stop offset="100%" stop-color="#553A08" stop-opacity="0.88"/>'
+    +     '</radialGradient>'
+    +     '<clipPath id="' + clId + '"><path class="sv-clip" d="' + s.body + '"/></clipPath>'
+    +     '<radialGradient id="' + flId + '" cx="50%" cy="50%" r="50%">'
+    +       '<stop offset="0%" stop-color="#C9A84C" stop-opacity="0.22"/>'
+    +       '<stop offset="100%" stop-color="#C9A84C" stop-opacity="0"/>'
+    +     '</radialGradient>'
+    +     '<linearGradient id="' + rgId + '" x1="0" y1="0" x2="0" y2="1">'
+    +       '<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.4"/>'
+    +       '<stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>'
+    +     '</linearGradient>'
+    +     '<mask id="' + rmId + '"><rect x="0" y="384" width="120" height="34" fill="url(#' + rgId + ')"/></mask>'
+    +   '</defs>'
+
+    // grounded reflection — a soft, faded mirror of the base, like product
+    // photography under a spotlight. No lines, no texture, just a fade.
+    +   '<g transform="translate(0,768) scale(1,-1)" mask="url(#' + rmId + ')">'
+    +     '<path d="' + s.body + '" fill="rgba(201,168,76,0.14)"/>'
+    +   '</g>'
+    +   '<ellipse class="sv-floor" cx="60" cy="396" rx="' + s.floorRx + '" ry="8" fill="url(#' + flId + ')"/>'
+
+    // water fill
+    +   '<rect class="sv-water" x="32" y="' + d.waterY + '" width="56" height="' + Math.max(0, 384 - d.waterY) + '" fill="url(#' + wId + ')" clip-path="url(#' + clId + ')"/>'
+    +   '<ellipse class="sv-wsurf" cx="60" cy="' + d.waterY + '" rx="24" ry="3.5" fill="rgba(215,246,255,0.3)"/>'
+
+    // glass body — the two-band gradient above does all the "shine" work;
+    // no separate highlight lines or streaks are drawn over the front.
+    +   '<path class="sv-outline" d="' + s.body + '" fill="url(#' + gId + ')" stroke="rgba(201,168,76,0.5)" stroke-width="1.1"/>'
+    +   '<path d="' + s.shoulder + '" fill="none" stroke="rgba(255,252,236,0.14)" stroke-width="1.1"/>'
+
+    // per-model surface flourishes — genuine physical details (a decanter's
+    // cut heel, a bottle's punt, an architectural panel seam), not fake
+    // cuts standing in for geometry the path itself now already has.
+    +   '<ellipse class="sv-detail sv-detail-sovereign" cx="60" cy="350" rx="19" ry="4.2" fill="none" stroke="rgba(201,168,76,0.34)" stroke-width="1"/>'
+    +   '<ellipse class="sv-detail sv-detail-palazzo" cx="60" cy="380" rx="12" ry="2.3" fill="rgba(0,0,0,0.18)"/>'
+    +   '<line class="sv-detail sv-detail-meridian" x1="60" y1="120" x2="60" y2="384" stroke="rgba(255,255,255,0.045)" stroke-width="8"/>'
+
+    // engraving plaque — double ring, corner accents, monogram + date
+    +   '<ellipse cx="' + ringOuter.cx + '" cy="' + ringOuter.cy + '" rx="' + ringOuter.rx + '" ry="' + ringOuter.ry + '" fill="none" stroke="rgba(201,168,76,0.46)" stroke-width="0.8"/>'
+    +   '<ellipse cx="' + ringOuter.cx + '" cy="' + ringOuter.cy + '" rx="' + ringInnerRx + '" ry="' + ringInnerRy + '" fill="none" stroke="rgba(201,168,76,0.18)" stroke-width="0.5"/>'
+    +   diamondAccent(ringOuter.cx - diagOffX, ringOuter.cy - diagOffY)
+    +   diamondAccent(ringOuter.cx + diagOffX, ringOuter.cy - diagOffY)
+    +   diamondAccent(ringOuter.cx - diagOffX, ringOuter.cy + diagOffY)
+    +   diamondAccent(ringOuter.cx + diagOffX, ringOuter.cy + diagOffY)
+    +   '<text x="' + ringOuter.cx + '" y="' + (ringOuter.cy + 5) + '" text-anchor="middle" dominant-baseline="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="17" font-weight="300" font-style="italic" fill="rgba(201,168,76,0.88)">R&amp;S</text>'
+    +   '<text x="' + ringOuter.cx + '" y="' + (ringOuter.cy + 22) + '" text-anchor="middle" dominant-baseline="middle" font-family="Montserrat, sans-serif" font-size="4.5" font-weight="200" letter-spacing="2" fill="rgba(201,168,76,0.55)">14 &middot; II &middot; 2026</text>'
+
+    // stable foot
+    +   '<ellipse cx="60" cy="384" rx="' + Math.max(14, s.floorRx - 6) + '" ry="5" fill="rgba(201,168,76,0.04)" stroke="rgba(201,168,76,0.2)" stroke-width="0.8"/>'
+
+    // bespoke cap, unique to this silhouette
+    +   capMarkup
+    + '</svg>';
+}
+
+// Renders the five exhibits into the track. Each starts on its own
+// signature size (330ml where offered) — only the active exhibit's size
+// changes further, via the chip selector in the panel below.
+function renderGalleryItems(){
+  var track = document.getElementById('gallery-track');
+  if (!track) return;
+  track.innerHTML = MODELS.map(function(m, i){
+    var avail = MODEL_SIZES[m.id] || [];
+    var defaultMl = avail.indexOf('330') !== -1 ? '330' : avail[0];
+    return '<div class="gallery-item model-' + m.id + '" data-index="' + i + '" data-model="' + m.id + '" role="button" tabindex="-1" aria-label="' + m.name + '">'
+      + '<div class="gallery-item-glow"></div>'
+      + bottleSVG(m.id, defaultMl, 'gi' + i)
+      + '<div class="gallery-item-shadow"></div>'
+      + '<span class="gallery-item-label">' + m.name + '</span>'
       + '</div>';
   }).join('');
 
-  wrap.querySelectorAll('.sz-card').forEach(function(card){
-    card.addEventListener('click', function(){ selectSize(card.getAttribute('data-ml')); });
+  track.querySelectorAll('.gallery-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      goToGalleryIndex(parseInt(item.getAttribute('data-index'), 10));
+    });
   });
 }
 
-// Updates the configurator (visualizer panel) for the active model + size.
-function selectSize(ml){
+// Positions every exhibit along the curved platform relative to the
+// active index — centred and sharp at offset 0, pushed back, scaled
+// down, blurred and dimmed the further they sit from the spotlight.
+function updateGalleryTransforms(){
+  document.querySelectorAll('.gallery-item').forEach(function(item){
+    var idx = parseInt(item.getAttribute('data-index'), 10);
+    var offset = idx - galleryIndex;
+    var abs = Math.abs(offset);
+    var visible = abs <= 2;
+
+    item.classList.toggle('is-active', offset === 0);
+
+    var tx = offset * 168;
+    var tz = offset === 0 ? 30 : -150 - (abs - 1) * 76;
+    var rot = offset === 0 ? 0 : (offset > 0 ? -36 : 36);
+    var scale = offset === 0 ? 1 : Math.max(0.5, 1 - abs * 0.22);
+    var ty = offset === 0 ? 0 : 24;
+    var blur = offset === 0 ? 0 : Math.min(6, 1.6 + abs * 1.8);
+    var bright = offset === 0 ? 1 : Math.max(0.32, 1 - abs * 0.28);
+    var op = offset === 0 ? 1 : (visible ? Math.max(0, 0.6 - (abs - 1) * 0.34) : 0);
+
+    item.style.transform = 'translate3d(-50%,-50%,0) translateX(' + tx + 'px) translateY(' + ty + 'px) translateZ(' + tz + 'px) rotateY(' + rot + 'deg) scale(' + scale + ')';
+    item.style.filter = 'blur(' + blur + 'px) brightness(' + bright + ')';
+    item.style.opacity = op;
+    item.style.zIndex = String(100 - abs);
+    item.style.pointerEvents = visible && offset !== 0 ? 'auto' : 'none';
+  });
+}
+
+// Renders the content panel for whichever exhibit is active — only the
+// centred bottle's story, name, and size options are ever shown.
+function renderGalleryPanel(){
+  var panel = document.getElementById('gallery-panel');
+  if (!panel) return;
+  var model = MODELS[galleryIndex];
+  var avail = MODEL_SIZES[model.id] || [];
+  if (avail.indexOf(activeSize) === -1) activeSize = avail.indexOf('330') !== -1 ? '330' : avail[0];
+  var dims = SIZE_DIMS[activeSize] || SIZE_DIMS['330'];
+
+  var chips = avail.map(function(ml){
+    var mm = SIZE_META[ml];
+    return '<button type="button" class="gp-chip' + (ml === activeSize ? ' on' : '') + '" data-ml="' + ml + '">'
+      + '<span class="gp-chip-ml">' + ml + '</span><span class="gp-chip-name">' + mm.name + '</span>'
+      + '</button>';
+  }).join('');
+
+  panel.innerHTML = ''
+    + '<div class="gp-eyebrow">Exhibit ' + String(galleryIndex + 1).padStart(2, '0') + ' <span>/ ' + String(MODELS.length).padStart(2, '0') + '</span></div>'
+    + (model.badge ? '<div class="gp-badge">' + model.badge + '</div>' : '')
+    + '<h3 class="gp-name">' + model.name + '</h3>'
+    + '<p class="gp-tag">' + model.tag + '</p>'
+    + '<div class="gp-line"></div>'
+    + '<div class="gp-sizes">'
+    +   '<p class="gp-sizes-lbl">Select a size</p>'
+    +   '<div class="gp-chips" id="gp-chips">' + chips + '</div>'
+    + '</div>'
+    + '<div class="gp-compare">'
+    +   '<p class="gp-cmp-title">Size comparison</p>'
+    +   '<div class="gp-cmp-row"><span>iPhone 15</span><div class="gp-cmp-bar-wrap"><div class="gp-cmp-bar-fill" style="width:28%"></div></div><span>150mm</span></div>'
+    +   '<div class="gp-cmp-row"><span>' + model.name + '</span><div class="gp-cmp-bar-wrap"><div class="gp-cmp-bar-fill active" style="width:' + dims.barW + '"></div></div><span>' + dims.mm + '</span></div>'
+    +   '<div class="gp-cmp-row"><span>Wine bottle</span><div class="gp-cmp-bar-wrap"><div class="gp-cmp-bar-fill" style="width:100%"></div></div><span>300mm</span></div>'
+    + '</div>'
+    + '<p class="gp-detail">' + dims.label + ' &middot; Borosilicate &middot; ' + model.name + '</p>'
+    + '<a href="#bespoke" class="gp-cta">Commission This Silhouette &#8594;</a>';
+
+  panel.querySelectorAll('.gp-chip').forEach(function(chip){
+    chip.addEventListener('click', function(){ selectGallerySize(chip.getAttribute('data-ml')); });
+  });
+
+  panel.classList.remove('gp-in');
+  void panel.offsetWidth;
+  panel.classList.add('gp-in');
+}
+
+// Adjusts only the active exhibit's fill level and overall scale for the
+// chosen size — neighbours keep their own reference silhouette untouched.
+function selectGallerySize(ml){
   var avail = MODEL_SIZES[activeModel] || [];
   if (avail.indexOf(ml) === -1) ml = avail[0];
   activeSize = ml;
 
-  document.querySelectorAll('#sz-cards-inner .sz-card').forEach(function(c){
-    c.classList.toggle('active-sz', c.getAttribute('data-ml') === ml);
-  });
-
   var d = SIZE_DIMS[ml] || SIZE_DIMS['330'];
+  var base = SIZE_DIMS['330'];
+
+  var activeItem = document.querySelector('.gallery-item.is-active');
+  if (activeItem) {
+    var svg = activeItem.querySelector('.sv-svg');
+    var water = activeItem.querySelector('.sv-water');
+    var wsurf = activeItem.querySelector('.sv-wsurf');
+    if (svg) svg.style.transform = 'scale(' + (d.h / base.h).toFixed(3) + ')';
+    if (water) { water.setAttribute('y', d.waterY); water.setAttribute('height', Math.max(0, 384 - d.waterY)); }
+    if (wsurf) wsurf.setAttribute('cy', d.waterY);
+  }
+
+  document.querySelectorAll('.gp-chip').forEach(function(c){
+    c.classList.toggle('on', c.getAttribute('data-ml') === ml);
+  });
+  var detail = document.querySelector('.gp-detail');
   var model = MODELS_BY_ID[activeModel];
-  var meta = SIZE_META[ml];
+  if (detail) detail.innerHTML = d.label + ' &middot; Borosilicate &middot; ' + (model ? model.name : '');
 
-  var svName = document.getElementById('sv-name');
-  var svMl = document.getElementById('sv-ml');
-  var svDet = document.getElementById('sv-det');
-  var svLbl = document.getElementById('sv-lbl');
-  var svMm = document.getElementById('sv-mm');
-  if (svName) svName.textContent = model ? model.name : '';
-  if (svMl) svMl.textContent = meta.name + ' · ' + d.label;
-  if (svDet) svDet.innerHTML = d.label + ' &middot; Borosilicate &middot; ' + (model ? model.name : '');
-  if (svLbl) svLbl.textContent = model ? model.name : 'This bottle';
-  if (svMm) svMm.textContent = d.mm;
-
-  var svg = document.getElementById('sv-svg');
-  if (svg) { svg.style.width = d.w + 'px'; svg.style.height = d.h + 'px'; }
-
-  var water = document.getElementById('sv-water');
-  var wsurf = document.getElementById('sv-wsurf');
-  if (water) { water.setAttribute('y', d.waterY); water.setAttribute('height', Math.max(0, 384 - d.waterY)); }
-  if (wsurf) wsurf.setAttribute('cy', d.waterY);
-
-  var bar = document.getElementById('sv-bar');
-  if (bar) bar.style.width = d.barW;
-
-  applyModelShape(activeModel);
+  var cmpFill = document.querySelector('.gp-cmp-row .gp-cmp-bar-fill.active');
+  if (cmpFill) {
+    cmpFill.style.width = d.barW;
+    var cmpRow = cmpFill.closest('.gp-cmp-row');
+    var mmSpan = cmpRow ? cmpRow.querySelector('span:last-child') : null;
+    if (mmSpan) mmSpan.textContent = d.mm;
+  }
 
   var formSel = document.getElementById('f-size');
   if (formSel) {
@@ -366,33 +599,139 @@ function selectSize(ml){
   }
 }
 
-// Switches the active silhouette, re-renders its size options, and keeps the
-// current size if that silhouette still offers it (otherwise falls back).
-function selectModel(id){
-  if (!MODELS_BY_ID[id]) return;
-  activeModel = id;
-
-  document.querySelectorAll('.model-card').forEach(function(c){
-    var on = c.getAttribute('data-model') === id;
-    c.classList.toggle('active-model', on);
-    c.setAttribute('aria-pressed', on ? 'true' : 'false');
-  });
-
-  renderSizeCards(id);
-  var avail = MODEL_SIZES[id] || [];
-  selectSize(avail.indexOf(activeSize) !== -1 ? activeSize : avail[0]);
-  applyStoryShape(id);
-}
-
-function bindModelCards(){
-  document.querySelectorAll('.model-card').forEach(function(card){
-    card.addEventListener('click', function(){ selectModel(card.getAttribute('data-model')); });
+function renderGalleryDots(){
+  var wrap = document.getElementById('gallery-dots');
+  if (!wrap) return;
+  wrap.innerHTML = MODELS.map(function(m, i){
+    return '<button type="button" class="gdot' + (i === galleryIndex ? ' on' : '') + '" data-index="' + i + '" aria-label="Go to ' + m.name + '"></button>';
+  }).join('');
+  wrap.querySelectorAll('.gdot').forEach(function(dot){
+    dot.addEventListener('click', function(){ goToGalleryIndex(parseInt(dot.getAttribute('data-index'), 10)); });
   });
 }
 
-renderModelThumbs();
-bindModelCards();
-selectModel('heritage');
+function updateGalleryDotsAndIndex(){
+  document.querySelectorAll('.gdot').forEach(function(dot){
+    dot.classList.toggle('on', parseInt(dot.getAttribute('data-index'), 10) === galleryIndex);
+  });
+  var idxEl = document.getElementById('gallery-index');
+  if (idxEl) idxEl.textContent = String(galleryIndex + 1).padStart(2, '0') + ' / ' + String(MODELS.length).padStart(2, '0');
+}
+
+function updateGalleryArrows(){
+  var prev = document.getElementById('gal-prev');
+  var next = document.getElementById('gal-next');
+  if (prev) prev.classList.toggle('disabled', galleryIndex === 0);
+  if (next) next.classList.toggle('disabled', galleryIndex === MODELS.length - 1);
+}
+
+function announceGallery(name){
+  var live = document.getElementById('gallery-announce');
+  if (live) live.textContent = name + ' — now viewing';
+}
+
+// The single entry point for changing exhibits — keeps the stage, panel,
+// dots, form, and the storytelling-section bottle all in sync.
+function goToGalleryIndex(idx){
+  if (idx < 0 || idx >= MODELS.length || idx === galleryIndex) return;
+  galleryIndex = idx;
+  var model = MODELS[idx];
+  activeModel = model.id;
+
+  var avail = MODEL_SIZES[activeModel] || [];
+  activeSize = avail.indexOf(activeSize) !== -1 ? activeSize : (avail.indexOf('330') !== -1 ? '330' : avail[0]);
+
+  updateGalleryTransforms();
+  renderGalleryPanel();
+  selectGallerySize(activeSize);
+  applyStoryShape(activeModel);
+  updateGalleryDotsAndIndex();
+  updateGalleryArrows();
+  announceGallery(model.name);
+}
+
+function nextGalleryItem(){ goToGalleryIndex(Math.min(MODELS.length - 1, galleryIndex + 1)); }
+function prevGalleryItem(){ goToGalleryIndex(Math.max(0, galleryIndex - 1)); }
+
+function bindGalleryArrows(){
+  var prev = document.getElementById('gal-prev');
+  var next = document.getElementById('gal-next');
+  if (prev) prev.addEventListener('click', prevGalleryItem);
+  if (next) next.addEventListener('click', nextGalleryItem);
+}
+
+function bindGalleryKeys(){
+  var stage = document.getElementById('gallery-stage');
+  if (!stage) return;
+  stage.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight') { e.preventDefault(); nextGalleryItem(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); prevGalleryItem(); }
+  });
+}
+
+// One wheel gesture (trackpad swipe or mouse wheel) advances one exhibit,
+// with a short cooldown so a single gesture doesn't skip several at once.
+function bindGalleryWheel(){
+  var stage = document.getElementById('gallery-stage');
+  if (!stage) return;
+  stage.addEventListener('wheel', function(e){
+    e.preventDefault();
+    if (galleryWheelLocked) return;
+    var delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    if (Math.abs(delta) < 10) return;
+    galleryWheelLocked = true;
+    if (delta > 0) nextGalleryItem(); else prevGalleryItem();
+    setTimeout(function(){ galleryWheelLocked = false; }, 640);
+  }, { passive: false });
+}
+
+// Touch swipe — the dominant gesture axis is decided on first movement so
+// a mostly-vertical touch still lets the page scroll normally.
+function bindGalleryTouch(){
+  var stage = document.getElementById('gallery-stage');
+  if (!stage) return;
+  var startX = 0, startY = 0, tracking = false, decided = false, horizontal = false;
+
+  stage.addEventListener('touchstart', function(e){
+    var t = e.touches[0];
+    startX = t.clientX; startY = t.clientY;
+    tracking = true; decided = false; horizontal = false;
+  }, { passive: true });
+
+  stage.addEventListener('touchmove', function(e){
+    if (!tracking) return;
+    var t = e.touches[0];
+    var dx = t.clientX - startX, dy = t.clientY - startY;
+    if (!decided && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      decided = true;
+      horizontal = Math.abs(dx) > Math.abs(dy);
+    }
+    if (horizontal) e.preventDefault();
+  }, { passive: false });
+
+  stage.addEventListener('touchend', function(e){
+    if (!tracking) return;
+    tracking = false;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - startX;
+    if (horizontal && Math.abs(dx) > 44) { if (dx < 0) nextGalleryItem(); else prevGalleryItem(); }
+  });
+}
+
+function initGallery(){
+  renderGalleryItems();
+  renderGalleryDots();
+  updateGalleryTransforms();
+  renderGalleryPanel();
+  selectGallerySize(activeSize);
+  updateGalleryArrows();
+  bindGalleryArrows();
+  bindGalleryKeys();
+  bindGalleryWheel();
+  bindGalleryTouch();
+}
+
+initGallery();
 bindEnquiryFieldValidation();
 
 // ── FORM SUBMISSION — FIXED ───────────────────────────────
